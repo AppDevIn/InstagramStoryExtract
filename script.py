@@ -102,7 +102,7 @@ def createFolder(date) -> str:
 
 def getDate() -> str:
     today = date.today()
-    return today.strftime("%d%m%Y")
+    return today.strftime("%Y%m%d")
 
 
 def validatename(name) -> str:
