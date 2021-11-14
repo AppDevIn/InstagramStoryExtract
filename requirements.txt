@@ -1,0 +1,15 @@
+beautifulsoup4==4.9.3
+certifi==2021.5.30
+chardet==4.0.0
+chromedriver-binary==92.0.4515.43.0
+colorama==0.4.4
+configparser==5.0.2
+crayons==0.4.0
+idna==2.10
+pybase62==0.4.3
+requests==2.25.1
+selenium==3.141.0
+soupsieve==2.2.1
+urllib3==1.26.5
+uuid0==0.2.7
+webdriver-manager==3.4.2
