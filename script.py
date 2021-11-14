@@ -148,4 +148,4 @@ if __name__ == "__main__":
         driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
     driver.close()
-    print(imagesArr)
+    print(f"The number of image/video downloaded are ${len(imagesArr)}")
