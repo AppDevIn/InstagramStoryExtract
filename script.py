@@ -14,9 +14,9 @@ import uuid0
 from dotenv import load_dotenv
 
 load_dotenv()
-username = os.getenv('instagram_username')
-password = os.getenv('instagram_password')
-default = os.getenv('instagram_default')
+username = os.getenv('username')
+password = os.getenv('password')
+profileName = os.getenv('default_account')
 
 
 def document_initialised(driver):
@@ -106,15 +106,17 @@ def getDate() -> str:
     return today.strftime("%d%m%Y")
 
 
-def validatename(name) -> str:
-    if name == '':
-        return default
-    else:
-        return name
+
 
 
 if __name__ == "__main__":
-    profileName = validatename(input("Which instagram: "))
+
+    if username is None:
+        username = input("Enter username: ")
+    if password is None:
+        password = input(f"Enter password for {username}: ")
+    if profileName is None:
+        profileName = input("Which profile story would like to download: ")
 
     driver = webdriver.Chrome(
         ChromeDriverManager().install())
