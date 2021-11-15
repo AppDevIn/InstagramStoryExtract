@@ -1,21 +1,18 @@
 # Simple assignment
-import time
-from urllib.parse import uses_relative
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 import requests
 import os
 from datetime import date
 import uuid0
+from dotenv import load_dotenv
 
-
-username = os.environ['instagram_username']
-password = os.environ['instagram_password']
-default = os.environ['instagram_default']
+load_dotenv()
+username = os.getenv('username')
+password = os.getenv('password')
+profileName = os.getenv('default_account')
 
 
 def document_initialised(driver):
@@ -105,15 +102,17 @@ def getDate() -> str:
     return today.strftime("%Y%m%d")
 
 
-def validatename(name) -> str:
-    if name == '':
-        return default
-    else:
-        return name
+
 
 
 if __name__ == "__main__":
-    profileName = validatename(input("Which instagram: "))
+
+    if username is None:
+        username = input("Enter username: ")
+    if password is None:
+        password = input(f"Enter password for {username}: ")
+    if profileName is None:
+        profileName = input("Which profile story would like to download: ")
 
     driver = webdriver.Chrome(
         ChromeDriverManager().install())
