@@ -11,11 +11,12 @@ import requests
 import os
 from datetime import date
 import uuid0
+from dotenv import load_dotenv
 
-
-username = os.environ['instagram_username']
-password = os.environ['instagram_password']
-default = os.environ['instagram_default']
+load_dotenv()
+username = os.getenv('instagram_username')
+password = os.getenv('instagram_password')
+default = os.getenv('instagram_default')
 
 
 def document_initialised(driver):
