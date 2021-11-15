@@ -3,3 +3,4 @@
 SRC_Cam/
 record/
 env/
+.env
