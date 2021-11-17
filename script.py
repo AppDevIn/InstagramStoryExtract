@@ -5,7 +5,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import NoSuchElementException
 import requests
 import os
-from datetime import date
+import logging
+from datetime import date, datetime
 import uuid0
 from dotenv import load_dotenv
 
@@ -87,8 +88,8 @@ def downloadVideo(url, name, path):
     open(f'./{path}{name}.mp4', 'wb').write(r.content)
 
 
-def createFolder(date) -> str:
-    path = f"record/{date}/"
+def createFolder(prefix, date) -> str:
+    path = f"{prefix}/{date}/"
     if not os.path.isdir(path):
         os.makedirs(path)
     else:
@@ -102,10 +103,28 @@ def getDate() -> str:
     return today.strftime("%Y%m%d")
 
 
+def setUpLogging() -> logging.Logger:
 
+    if not os.path.isdir("logs"):
+        os.makedirs("logs")
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    filename = os.path.join(dir_path, f'logs/{datetime.now().strftime("%Y%m%d%H%M%S")}.log')
+
+    # Logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    return logger
 
 
 if __name__ == "__main__":
+
+    logger = setUpLogging()
 
     if username is None:
         username = input("Enter username: ")
@@ -117,6 +136,7 @@ if __name__ == "__main__":
     driver = webdriver.Chrome(
         ChromeDriverManager().install())
 
+    logger.info(f"Logging in to account {username}")
     print(f"Logging in to account {username}")
     login(driver)
 
@@ -135,7 +155,7 @@ if __name__ == "__main__":
     print("Looping through the story")
     imagesArr = []
     CURRENT_DATE = getDate()
-    path = createFolder(CURRENT_DATE)
+    path = createFolder("record", CURRENT_DATE)
     while nextStory():
         imagesArr.append(getImageLink())
         videoLink = getVideoLink()
