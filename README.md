@@ -26,6 +26,24 @@ python -m pip install -r requirements.txt
 deactivate
 ```
 
+### Creating .env file 
+
+Create in the directory
+
+```
+touch .env
+```
+
+Values needed to be filled below is the template to follow
+
+```
+username="THE USERNAME/EMAIL"
+password="THE PASSWORD"
+default_account="THE DEFAULT ACCOUNT FOR THE SCRIPT TO ALWAYS RUN"
+log_folder="THE FULL PATH TO THE LOG FOLDER"
+data_folder="THE FULL PATH TO THE FOLDER FOR THE VIDEO AND IMAGE"
+```
+
 
 
 ## Contributions 
