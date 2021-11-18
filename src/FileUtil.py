@@ -1,5 +1,6 @@
 import os
 import uuid0
+import pdb
 
 
 class FileUtil:
@@ -14,7 +15,7 @@ class FileUtil:
         if not self.hasExistingFolder():
             os.makedirs(self.dir_path)
         elif createUniqueSubFolderIfExits and self.hasExistingFolder():
-            self.path = f"{self.dir_path}{uuid0.generate()}/"
+            self.dir_path = f"{self.dir_path}{uuid0.generate()}/"
             os.makedirs(self.dir_path)
 
         return self

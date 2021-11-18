@@ -19,65 +19,6 @@ log_path = os.getenv('log_folder')
 data_path = os.getenv('data_folder')
 
 
-def document_initialised(driver):
-    return driver.execute_script("return initialised")
-
-
-def login(driver):
-    driver.get("https://www.instagram.com/")
-    usernameEle = WebDriverWait(driver, 30).until(
-        lambda d: d.find_element_by_name("username"))
-
-    passwordEle = driver.find_element_by_name("password")
-    loginBtn = driver.find_element_by_xpath(
-        '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div/div[3]/button')
-
-    usernameEle.send_keys(username)
-    passwordEle.send_keys(password)
-
-    loginBtn.click()
-
-
-def reachFeed(driver):
-    notNowBtn = WebDriverWait(driver, 30).until(
-        lambda d: d.find_element_by_xpath("/html/body/div[1]/section/main/div/div/div/div/button"))
-
-    notNowBtn.click()
-    WebDriverWait(driver, 30).until(
-        lambda d: d.find_element_by_xpath("/html/body/div[5]/div/div/div/div[3]/button[2]")).click()
-
-
-def getImageLink() -> str:
-    image = driver.find_element_by_xpath(
-        "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/img")
-    value = image.get_attribute("srcset")
-    value = value.split(',')
-    return value[0]
-
-
-def getVideoLink() -> str:
-    try:
-        video = driver.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/video/source")
-
-        videoValue = video.get_attribute("src")
-        return videoValue
-
-    except Exception:
-        return ""
-
-
-def nextStory() -> bool:
-    try:
-        driver.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/section/div/button[2]")
-        if driver.current_url == "https://www.instagram.com/":
-            return False
-        return True
-    except NoSuchElementException:
-        return False
-
-
 def downloadImage(link, name, path):
     url = link.split()[0]
     r = requests.get(url)
@@ -108,57 +49,42 @@ def setUpLogging(filename: str) -> logging.Logger:
     return logger
 
 
-def logInfo(message: str):
-    logger.info(message)
-    print(message)
+def main(instagram: InstagramSelenium):
+    if not instagram.loginToInstagram(username, password):
+        instagram.closeDriver()
+        exit()
+
+    if not instagram.visitUserStoryPage(profileName):
+        instagram.closeDriver()
+        exit()
+
+    image_count = 0
+    dataFile = FileUtil(f"{data_path}/{getDate()}/")
+    path = dataFile.createFolder(True).getDir()
+
+    while instagram.stillInStory():
+        videoLink = instagram.getStoryVideoLink()
+        if videoLink != "":
+            downloadVideo(videoLink, image_count, path)
+        else:
+            downloadImage(instagram.getStoryImageLink(), image_count, path)
+        image_count += 1
+
+        instagram.nextStory()
+
+    logger.info(f"The number of image/video downloaded are {image_count}")
+
+    instagram.closeDriver()
 
 
 if __name__ == "__main__":
-
     logFile = FileUtil(log_path, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
+    instagram = InstagramSelenium(logger)
+    try:
+        main(instagram)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
 
-    if username is None:
-        username = input("Enter username: ")
-    if password is None:
-        password = input(f"Enter password for {username}: ")
-    if profileName is None:
-        profileName = input("Which profile story would like to download: ")
 
-    driver = webdriver.Chrome(
-        ChromeDriverManager().install())
-
-    logInfo(f"Logging in to account {username}")
-    login(driver)
-
-    logInfo(f"Trying to reach feed")
-    reachFeed(driver)
-
-    logInfo(f"Entering the {profileName} profile")
-    driver.get(
-        f"https://www.instagram.com/stories/{profileName}/2602290251374219276/")
-
-    logInfo("Clicking on the profile")
-    WebDriverWait(driver, 30).until(
-        lambda d: d.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
-
-    logInfo("Looping through the story")
-    imagesArr = []
-    CURRENT_DATE = getDate()
-    dataFile = FileUtil(f"{data_path}/{CURRENT_DATE}/")
-    path = dataFile.createFolder(True).getDir()
-
-    while nextStory():
-        imagesArr.append(getImageLink())
-        videoLink = getVideoLink()
-        if videoLink != "":
-            downloadVideo(videoLink, len(imagesArr), path)
-        else:
-            downloadImage(getImageLink(), len(imagesArr), path)
-
-        driver.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
-    driver.close()
-    logInfo(f"The number of image/video downloaded are {len(imagesArr)}")
