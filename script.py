@@ -66,10 +66,11 @@ def main(instagram: InstagramSelenium):
 
     while instagram.stillInStory():
         videoLink = instagram.getStoryVideoLink()
+        filename = instagram.getTimeFromStory().strftime("%H%M%S")
         if videoLink != "":
-            downloadVideo(videoLink, image_count, path)
+            downloadVideo(videoLink, filename, path)
         else:
-            downloadImage(instagram.getStoryImageLink(), image_count, path)
+            downloadImage(instagram.getStoryImageLink(), filename, path)
         image_count += 1
 
         instagram.nextStory()

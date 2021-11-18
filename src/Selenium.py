@@ -5,7 +5,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from datetime import datetime
 import logging
+import pdb
 
 
 class InstagramSelenium:
@@ -82,6 +84,13 @@ class InstagramSelenium:
     def nextStory(self):
         self.driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
+
+    def getTimeFromStory(self) -> datetime:
+        time = self.driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div[1]/div/section/div/header/div[2]/div[1]/div/div/div/time"
+        )
+        time_str = time.get_attribute("datetime")[:-5]
+        return datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
 
     def getStoryImageLink(self) -> str:
         image = self.driver.find_element_by_xpath(
