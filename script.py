@@ -4,6 +4,8 @@ import os
 import logging
 from datetime import date, datetime
 from dotenv import load_dotenv
+
+from src.DateUtil import DateUtil
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
 import sys
@@ -29,11 +31,6 @@ def downloadVideo(url, name, path):
     r = requests.get(url)
 
     open(f'{path}{name}.mp4', 'wb').write(r.content)
-
-
-def getDate() -> str:
-    today = date.today()
-    return today.strftime("%Y%m%d")
 
 
 def setUpLogging(filename: str) -> logging.Logger:
@@ -62,19 +59,18 @@ def main(instagram: InstagramSelenium):
         exit()
 
     image_count = 0
-    dataFile = FileUtil(f"{data_path}/{getDate()}/")
-    path = dataFile.createFolder().getDir()
-    logger.info(f"Files will be stored in {path}")
 
     while instagram.stillInStory():
-        videoLink = instagram.getStoryVideoLink()
-        tz = timezone(zone)
-        dateTime = instagram.getTimeFromStory()
-        dateTime = (dateTime + tz.utcoffset(dateTime, is_dst=True))
+        dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromStory(), zone)
+
+        path = FileUtil(f"{data_path}/{dateTime.strftime(DateUtil.DATE_FORMAT)}/") \
+            .createFolder().getDir()
 
         logger.info(f"Story was posted on {dateTime}")
 
         filename = dateTime.strftime("%Y%m%d%H%M%S")
+
+        videoLink = instagram.getStoryVideoLink()
 
         if videoLink != "":
             downloadVideo(videoLink, filename, path)
