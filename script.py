@@ -63,7 +63,7 @@ def main(instagram: InstagramSelenium):
 
     image_count = 0
     dataFile = FileUtil(f"{data_path}/{getDate()}/")
-    path = dataFile.createFolder(True).getDir()
+    path = dataFile.createFolder().getDir()
     logger.info(f"Files will be stored in {path}")
 
     while instagram.stillInStory():
