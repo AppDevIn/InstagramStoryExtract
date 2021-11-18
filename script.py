@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
 import sys
+from pytz import timezone
 
 load_dotenv()
 username = os.getenv('username')
@@ -14,6 +15,7 @@ password = os.getenv('password')
 profileName = os.getenv('default_account')
 log_path = os.getenv('log_folder')
 data_path = os.getenv('data_folder')
+zone = os.getenv('timezone')
 
 
 def downloadImage(link, name, path):
@@ -61,15 +63,23 @@ def main(instagram: InstagramSelenium):
 
     image_count = 0
     dataFile = FileUtil(f"{data_path}/{getDate()}/")
-    path = dataFile.createFolder(True).getDir()
+    path = dataFile.createFolder().getDir()
     logger.info(f"Files will be stored in {path}")
 
     while instagram.stillInStory():
         videoLink = instagram.getStoryVideoLink()
+        tz = timezone(zone)
+        dateTime = instagram.getTimeFromStory()
+        dateTime = (dateTime + tz.utcoffset(dateTime, is_dst=True))
+
+        logger.info(f"Story was posted on {dateTime}")
+
+        filename = dateTime.strftime("%Y%m%d%H%M%S")
+
         if videoLink != "":
-            downloadVideo(videoLink, image_count, path)
+            downloadVideo(videoLink, filename, path)
         else:
-            downloadImage(instagram.getStoryImageLink(), image_count, path)
+            downloadImage(instagram.getStoryImageLink(), filename, path)
         image_count += 1
 
         instagram.nextStory()
