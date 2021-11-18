@@ -1,8 +1,4 @@
 # Simple assignment
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import NoSuchElementException
 import requests
 import os
 import logging
@@ -10,6 +6,7 @@ from datetime import date, datetime
 from dotenv import load_dotenv
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
+import sys
 
 load_dotenv()
 username = os.getenv('username')
@@ -49,6 +46,10 @@ def setUpLogging(filename: str) -> logging.Logger:
     return logger
 
 
+def isHeadless(args):
+    return "--headless" in sys.argv
+
+
 def main(instagram: InstagramSelenium):
     if not instagram.loginToInstagram(username, password):
         instagram.closeDriver()
@@ -81,10 +82,9 @@ if __name__ == "__main__":
     logFile = FileUtil(log_path, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    instagram = InstagramSelenium(logger)
+    instagram = InstagramSelenium(logger, isHeadless(sys.argv))
     try:
         main(instagram)
     except Exception as e:
+        instagram.closeDriver()
         logger.error(f"Unexpected error: {e}")
-
-

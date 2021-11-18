@@ -4,15 +4,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import logging
 
 
 class InstagramSelenium:
 
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, headless):
         self.logger = logger
+        chrome_options = Options()
+        if headless:
+            chrome_options.add_argument("--headless")
         self.driver = webdriver.Chrome(
-            ChromeDriverManager().install())
+            ChromeDriverManager().install(), options=chrome_options)
 
     def loginToInstagram(self, username, password) -> bool:
         url = "https://www.instagram.com/"
