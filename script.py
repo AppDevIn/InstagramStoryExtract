@@ -7,7 +7,6 @@ import requests
 import os
 import logging
 from datetime import date, datetime
-import uuid0
 from dotenv import load_dotenv
 from FileUtil import FileUtil
 
@@ -91,23 +90,12 @@ def downloadVideo(url, name, path):
     open(f'./{path}{name}.mp4', 'wb').write(r.content)
 
 
-def createFolder(prefix, date) -> str:
-    path = f"{prefix}/{date}/"
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    else:
-        path = f"{path}{uuid0.generate()}/"
-        os.makedirs(path)
-    return path
-
-
 def getDate() -> str:
     today = date.today()
     return today.strftime("%Y%m%d")
 
 
 def setUpLogging(filename: str) -> logging.Logger:
-
     # Logger
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
@@ -137,25 +125,25 @@ if __name__ == "__main__":
         ChromeDriverManager().install())
 
     logger.info(f"Logging in to account {username}")
-    print(f"Logging in to account {username}")
     login(driver)
 
-    print(f"Trying to reach feed")
+    logger.info(f"Trying to reach feed")
     reachFeed(driver)
 
-    print(f"Entering the {profileName} profile")
+    logger.info(f"Entering the {profileName} profile")
     driver.get(
         f"https://www.instagram.com/stories/{profileName}/2602290251374219276/")
 
-    print("Clicking on the profile")
+    logger.info("Clicking on the profile")
     WebDriverWait(driver, 30).until(
         lambda d: d.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
 
-    print("Looping through the story")
+    logger.info("Looping through the story")
     imagesArr = []
     CURRENT_DATE = getDate()
-    path = createFolder("record", CURRENT_DATE)
+    dataFile = FileUtil(f"{data_path}/{CURRENT_DATE}")
+    path = dataFile.createFolder(True)
     while nextStory():
         imagesArr.append(getImageLink())
         videoLink = getVideoLink()
@@ -167,4 +155,4 @@ if __name__ == "__main__":
         driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
     driver.close()
-    print(f"The number of image/video downloaded are {len(imagesArr)}")
+    logger.info(f"The number of image/video downloaded are {len(imagesArr)}")
