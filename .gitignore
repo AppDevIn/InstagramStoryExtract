@@ -4,3 +4,5 @@ SRC_Cam/
 record/
 env/
 .env
+logs/
+__pycache__/

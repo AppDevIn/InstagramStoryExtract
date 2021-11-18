@@ -5,14 +5,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import NoSuchElementException
 import requests
 import os
-from datetime import date
-import uuid0
+import logging
+from datetime import date, datetime
 from dotenv import load_dotenv
+from FileUtil import FileUtil
 
 load_dotenv()
 username = os.getenv('username')
 password = os.getenv('password')
 profileName = os.getenv('default_account')
+log_path = os.getenv('log_folder')
+data_path = os.getenv('data_folder')
 
 
 def document_initialised(driver):
@@ -78,23 +81,13 @@ def downloadImage(link, name, path):
     url = link.split()[0]
     r = requests.get(url)
 
-    open(f'./{path}{name}.jpg', 'wb').write(r.content)
+    open(f'{path}{name}.jpg', 'wb').write(r.content)
 
 
 def downloadVideo(url, name, path):
     r = requests.get(url)
 
-    open(f'./{path}{name}.mp4', 'wb').write(r.content)
-
-
-def createFolder(date) -> str:
-    path = f"record/{date}/"
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    else:
-        path = f"{path}{uuid0.generate()}/"
-        os.makedirs(path)
-    return path
+    open(f'{path}{name}.mp4', 'wb').write(r.content)
 
 
 def getDate() -> str:
@@ -102,10 +95,28 @@ def getDate() -> str:
     return today.strftime("%Y%m%d")
 
 
+def setUpLogging(filename: str) -> logging.Logger:
+    # Logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    return logger
+
+
+def logInfo(message: str):
+    logger.info(message)
+    print(message)
 
 
 if __name__ == "__main__":
+
+    logFile = FileUtil(log_path, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
+
+    logger = setUpLogging(logFile.createFolder().getPath())
 
     if username is None:
         username = input("Enter username: ")
@@ -117,25 +128,27 @@ if __name__ == "__main__":
     driver = webdriver.Chrome(
         ChromeDriverManager().install())
 
-    print(f"Logging in to account {username}")
+    logInfo(f"Logging in to account {username}")
     login(driver)
 
-    print(f"Trying to reach feed")
+    logInfo(f"Trying to reach feed")
     reachFeed(driver)
 
-    print(f"Entering the {profileName} profile")
+    logInfo(f"Entering the {profileName} profile")
     driver.get(
         f"https://www.instagram.com/stories/{profileName}/2602290251374219276/")
 
-    print("Clicking on the profile")
+    logInfo("Clicking on the profile")
     WebDriverWait(driver, 30).until(
         lambda d: d.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
 
-    print("Looping through the story")
+    logInfo("Looping through the story")
     imagesArr = []
     CURRENT_DATE = getDate()
-    path = createFolder(CURRENT_DATE)
+    dataFile = FileUtil(f"{data_path}/{CURRENT_DATE}/")
+    path = dataFile.createFolder(True).getDir()
+
     while nextStory():
         imagesArr.append(getImageLink())
         videoLink = getVideoLink()
@@ -147,4 +160,4 @@ if __name__ == "__main__":
         driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
     driver.close()
-    print(f"The number of image/video downloaded are {len(imagesArr)}")
+    logInfo(f"The number of image/video downloaded are {len(imagesArr)}")
