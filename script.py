@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
 import sys
+from pytz import timezone
 
 load_dotenv()
 username = os.getenv('username')
@@ -14,6 +15,7 @@ password = os.getenv('password')
 profileName = os.getenv('default_account')
 log_path = os.getenv('log_folder')
 data_path = os.getenv('data_folder')
+zone = os.getenv('timezone')
 
 
 def downloadImage(link, name, path):
@@ -66,7 +68,14 @@ def main(instagram: InstagramSelenium):
 
     while instagram.stillInStory():
         videoLink = instagram.getStoryVideoLink()
-        filename = instagram.getTimeFromStory().strftime("%H%M%S")
+        tz = timezone(zone)
+        dateTime = instagram.getTimeFromStory()
+        dateTime = (dateTime + tz.utcoffset(dateTime, is_dst=True))
+
+        logger.info(f"Story was posted on {dateTime}")
+
+        filename = dateTime.strftime("%Y%m%d%H%M%S")
+
         if videoLink != "":
             downloadVideo(videoLink, filename, path)
         else:
