@@ -8,7 +8,8 @@ import os
 import logging
 from datetime import date, datetime
 from dotenv import load_dotenv
-from FileUtil import FileUtil
+from src.FileUtil import FileUtil
+from src.Selenium import InstagramSelenium
 
 load_dotenv()
 username = os.getenv('username')
