@@ -67,8 +67,9 @@ def main(instagram: InstagramSelenium):
             .createFolder().getDir()
 
         logger.info(f"Story was posted on {dateTime}")
+        logger.info(f"File is saved into {path}")
 
-        filename = dateTime.strftime("%Y%m%d%H%M%S")
+        filename = dateTime.strftime(DateUtil.DATETIME_FORMAT)
 
         videoLink = instagram.getStoryVideoLink()
 
@@ -86,7 +87,7 @@ def main(instagram: InstagramSelenium):
 
 
 if __name__ == "__main__":
-    logFile = FileUtil(log_path, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
+    logFile = FileUtil(log_path, f"{datetime.now().strftime(DateUtil.DATETIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
     instagram = InstagramSelenium(logger, isHeadless(sys.argv))
