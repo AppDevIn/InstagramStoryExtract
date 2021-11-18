@@ -81,13 +81,13 @@ def downloadImage(link, name, path):
     url = link.split()[0]
     r = requests.get(url)
 
-    open(f'./{path}{name}.jpg', 'wb').write(r.content)
+    open(f'{path}{name}.jpg', 'wb').write(r.content)
 
 
 def downloadVideo(url, name, path):
     r = requests.get(url)
 
-    open(f'./{path}{name}.mp4', 'wb').write(r.content)
+    open(f'{path}{name}.mp4', 'wb').write(r.content)
 
 
 def getDate() -> str:
@@ -107,12 +107,16 @@ def setUpLogging(filename: str) -> logging.Logger:
     return logger
 
 
+def logInfo(message: str):
+    logger.info(message)
+    print(message)
+
+
 if __name__ == "__main__":
 
-    logFile = FileUtil(f"{log_path}/{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
-    logFile.createFolder()
+    logFile = FileUtil(log_path, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
 
-    logger = setUpLogging(logFile.path)
+    logger = setUpLogging(logFile.createFolder().getPath())
 
     if username is None:
         username = input("Enter username: ")
@@ -124,26 +128,27 @@ if __name__ == "__main__":
     driver = webdriver.Chrome(
         ChromeDriverManager().install())
 
-    logger.info(f"Logging in to account {username}")
+    logInfo(f"Logging in to account {username}")
     login(driver)
 
-    logger.info(f"Trying to reach feed")
+    logInfo(f"Trying to reach feed")
     reachFeed(driver)
 
-    logger.info(f"Entering the {profileName} profile")
+    logInfo(f"Entering the {profileName} profile")
     driver.get(
         f"https://www.instagram.com/stories/{profileName}/2602290251374219276/")
 
-    logger.info("Clicking on the profile")
+    logInfo("Clicking on the profile")
     WebDriverWait(driver, 30).until(
         lambda d: d.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
 
-    logger.info("Looping through the story")
+    logInfo("Looping through the story")
     imagesArr = []
     CURRENT_DATE = getDate()
-    dataFile = FileUtil(f"{data_path}/{CURRENT_DATE}")
-    path = dataFile.createFolder(True)
+    dataFile = FileUtil(f"{data_path}/{CURRENT_DATE}/")
+    path = dataFile.createFolder(True).getDir()
+
     while nextStory():
         imagesArr.append(getImageLink())
         videoLink = getVideoLink()
@@ -155,4 +160,4 @@ if __name__ == "__main__":
         driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
     driver.close()
-    logger.info(f"The number of image/video downloaded are {len(imagesArr)}")
+    logInfo(f"The number of image/video downloaded are {len(imagesArr)}")

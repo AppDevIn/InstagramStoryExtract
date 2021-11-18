@@ -5,3 +5,4 @@ record/
 env/
 .env
 logs/
+__pycache__/
