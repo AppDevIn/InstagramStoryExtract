@@ -9,11 +9,14 @@ import logging
 from datetime import date, datetime
 import uuid0
 from dotenv import load_dotenv
+from FileUtil import FileUtil
 
 load_dotenv()
 username = os.getenv('username')
 password = os.getenv('password')
 profileName = os.getenv('default_account')
+log_path = os.getenv('log_folder')
+data_path = os.getenv('data_folder')
 
 
 def document_initialised(driver):
@@ -103,13 +106,7 @@ def getDate() -> str:
     return today.strftime("%Y%m%d")
 
 
-def setUpLogging() -> logging.Logger:
-
-    if not os.path.isdir("logs"):
-        os.makedirs("logs")
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    filename = os.path.join(dir_path, f'logs/{datetime.now().strftime("%Y%m%d%H%M%S")}.log')
+def setUpLogging(filename: str) -> logging.Logger:
 
     # Logger
     logger = logging.getLogger(__name__)
@@ -124,7 +121,10 @@ def setUpLogging() -> logging.Logger:
 
 if __name__ == "__main__":
 
-    logger = setUpLogging()
+    logFile = FileUtil(f"{log_path}/{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
+    logFile.createFolder()
+
+    logger = setUpLogging(logFile.path)
 
     if username is None:
         username = input("Enter username: ")
