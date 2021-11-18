@@ -62,6 +62,7 @@ def main(instagram: InstagramSelenium):
     image_count = 0
     dataFile = FileUtil(f"{data_path}/{getDate()}/")
     path = dataFile.createFolder(True).getDir()
+    logger.info(f"Files will be stored in {path}")
 
     while instagram.stillInStory():
         videoLink = instagram.getStoryVideoLink()
