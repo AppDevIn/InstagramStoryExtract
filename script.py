@@ -69,7 +69,7 @@ def main(instagram: InstagramSelenium):
         logger.info(f"Story was posted on {dateTime}")
         logger.info(f"File is saved into {path}")
 
-        filename = dateTime.strftime(DateUtil.DATETIME_FORMAT)
+        filename = dateTime.strftime(DateUtil.TIME_FORMAT)
 
         videoLink = instagram.getStoryVideoLink()
 

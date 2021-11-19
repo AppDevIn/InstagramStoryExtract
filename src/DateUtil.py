@@ -6,6 +6,7 @@ class DateUtil:
 
     DATE_FORMAT = "%Y%m%d"
     DATETIME_FORMAT = "%Y%m%d%H%M%S"
+    TIME_FORMAT = "%H_%M_%S"
 
     @staticmethod
     def getCurrentDate() -> str:
