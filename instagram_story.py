@@ -1,4 +1,3 @@
-# Simple assignment
 import requests
 import os
 import logging
@@ -9,7 +8,6 @@ from src.DateUtil import DateUtil
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
 import sys
-from pytz import timezone
 
 load_dotenv()
 username = os.getenv('username')
@@ -87,7 +85,7 @@ def main(instagram: InstagramSelenium):
 
 
 if __name__ == "__main__":
-    logFile = FileUtil(log_path, f"{datetime.now().strftime(DateUtil.DATETIME_FORMAT)}.log")
+    logFile = FileUtil(log_path, f"{DateUtil.getCurrentDateTime().strftime(DateUtil.DATETIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
     instagram = InstagramSelenium(logger, isHeadless(sys.argv))
