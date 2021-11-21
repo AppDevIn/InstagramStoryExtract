@@ -2,15 +2,17 @@ import time
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+
 import logging
 import pdb
+
+from src.model.UserHighlightModel import UserHighlightModel
 
 
 class InstagramSelenium:
@@ -133,25 +135,25 @@ class InstagramSelenium:
             self.logger.error("No existing highlight")
             return False
 
-    def getNumberOfHighlight(self):
-        highlight = self.getNameOfHighlight(WebDriverWait(self.driver, 10).until(
+    def getHighlights(self):
+        listOfHighlight = UserHighlightModel()
+        listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
             lambda d: d.find_elements_by_css_selector(
                 ".tUtVM img")))
         while self.isHighlightScrollable():
             WebDriverWait(self.driver, 10).until(
                 lambda d: d.find_element_by_css_selector(
                     ".Szr5J._6CZji")).click()
-            highlight += self.getNameOfHighlight(WebDriverWait(self.driver, 10).until(
+            listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
                 lambda d: d.find_elements_by_css_selector(
                     ".tUtVM img")))
-        highlight = set(highlight)
-        return len(highlight)
+        return listOfHighlight
 
     def getNameOfHighlight(self, highlight):
-        l = []
+        names = []
         for element in highlight:
-            l.append(element.get_attribute("alt"))
-        return l
+            names.append(element.get_attribute("alt"))
+        return names
 
     def isHighlightScrollable(self):
         try:

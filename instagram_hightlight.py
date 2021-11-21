@@ -45,7 +45,7 @@ def main(instagram: InstagramSelenium):
         instagram.closeDriver()
         exit()
 
-    instagram.getNumberOfHighlight()
+    highlights = instagram.getHighlights()
 
 
 if __name__ == "__main__":
