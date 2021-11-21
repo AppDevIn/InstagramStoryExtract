@@ -137,8 +137,15 @@ class InstagramSelenium:
         highlight = self.getNameOfHighlight(WebDriverWait(self.driver, 10).until(
             lambda d: d.find_elements_by_css_selector(
                 ".tUtVM img")))
-        for x in highlight:
-            print(x)
+        while self.isHighlightScrollable():
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J._6CZji")).click()
+            highlight += self.getNameOfHighlight(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    ".tUtVM img")))
+        highlight = set(highlight)
+        return len(highlight)
 
     def getNameOfHighlight(self, highlight):
         l = []
