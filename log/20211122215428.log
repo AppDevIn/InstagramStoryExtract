@@ -1,5 +1,0 @@
-2021-11-22 21:54:32,048 - INFO - Opening https://www.instagram.com/
-2021-11-22 21:54:32,612 - INFO - Logging in to account _.j._.s._r
-2021-11-22 21:54:40,411 - INFO - Visiting casslks profile
-2021-11-22 21:54:43,275 - INFO - Has existing highlight
-2021-11-22 21:54:43,847 - ERROR - Unexpected error: 'dict' object has no attribute 'add'

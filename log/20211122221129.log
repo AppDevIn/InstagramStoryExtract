@@ -1,7 +1,0 @@
-2021-11-22 22:11:41,506 - INFO - Opening https://www.instagram.com/
-2021-11-22 22:11:43,557 - ERROR - Unable to login due to Message: chrome not reachable
-  (Session info: chrome=95.0.4638.69)
-
-2021-11-22 22:11:43,581 - ERROR - Unexpected error: Message: chrome not reachable
-  (Session info: chrome=95.0.4638.69)
-
