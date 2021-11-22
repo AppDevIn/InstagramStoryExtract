@@ -46,6 +46,14 @@ def main(instagram: InstagramSelenium):
         exit()
 
     highlights = instagram.getHighlights()
+    instagram.restartHighLightPosition()
+
+    index = 0
+    for name in highlights.arrOfNames:
+        index += 1
+        print(f"{index}. {name}")
+    chosenName = input("Pick a index: ")
+    instagram.clickOnHighLightSelected(highlights.arrOfNames[int(chosenName)])
 
 
 if __name__ == "__main__":

@@ -149,11 +149,39 @@ class InstagramSelenium:
                     ".tUtVM img")))
         return listOfHighlight
 
+    def restartHighLightPosition(self):
+        while self.isLeftHighlightScrollable():
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J.POSa_")).click()
+
     def getNameOfHighlight(self, highlight):
         names = []
         for element in highlight:
             names.append(element.get_attribute("alt"))
         return names
+
+    def clickOnHighLightSelected(self, name):
+
+        listOfHighlight = UserHighlightModel()
+        listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                ".tUtVM img")))
+
+        while name not in listOfHighlight.arrOfNames:
+            listOfHighlight.elements = {}
+            listOfHighlight.arrOfNames = []
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J._6CZji")).click()
+            listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    ".tUtVM img")))
+            listOfHighlight.appendWebElement(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    "._3D7yK"))).click()
+
+        listOfHighlight.elements[name].click()
 
     def isHighlightScrollable(self):
         try:
@@ -161,6 +189,16 @@ class InstagramSelenium:
                 lambda d: d.find_element_by_css_selector(
                     ".Szr5J._6CZji"))
             self.logger.info("Highlight is scrollable")
+            return True
+        except TimeoutException as e:
+            return False
+
+    def isLeftHighlightScrollable(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J.POSa_"))
+            self.logger.info("Highlight is left scrollable")
             return True
         except TimeoutException as e:
             return False

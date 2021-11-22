@@ -1,0 +1,21 @@
+2021-11-22 22:27:59,535 - INFO - Opening https://www.instagram.com/
+2021-11-22 22:28:00,078 - INFO - Logging in to account _.j._.s._r
+2021-11-22 22:28:06,980 - INFO - Visiting casslks profile
+2021-11-22 22:28:09,178 - INFO - Has existing highlight
+2021-11-22 22:28:09,993 - INFO - Highlight is scrollable
+2021-11-22 22:28:10,276 - INFO - Highlight is scrollable
+2021-11-22 22:28:10,502 - INFO - Highlight is scrollable
+2021-11-22 22:28:10,842 - INFO - Highlight is scrollable
+2021-11-22 22:28:11,236 - INFO - Highlight is scrollable
+2021-11-22 22:28:11,554 - INFO - Highlight is scrollable
+2021-11-22 22:28:11,788 - INFO - Highlight is scrollable
+2021-11-22 22:28:22,246 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,308 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,345 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,384 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,435 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,475 - INFO - Highlight is left scrollable
+2021-11-22 22:28:22,502 - INFO - Highlight is left scrollable
+2021-11-22 22:28:40,640 - ERROR - Unexpected error: Message: element not interactable
+  (Session info: chrome=95.0.4638.69)
+

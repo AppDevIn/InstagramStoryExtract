@@ -1,0 +1,12 @@
+2021-11-22 21:58:47,780 - INFO - Opening https://www.instagram.com/
+2021-11-22 21:58:48,319 - INFO - Logging in to account _.j._.s._r
+2021-11-22 21:58:54,834 - INFO - Visiting casslks profile
+2021-11-22 21:58:57,417 - INFO - Has existing highlight
+2021-11-22 21:58:57,567 - INFO - Highlight is scrollable
+2021-11-22 21:58:57,821 - INFO - Highlight is scrollable
+2021-11-22 21:58:58,004 - INFO - Highlight is scrollable
+2021-11-22 21:58:58,225 - INFO - Highlight is scrollable
+2021-11-22 21:58:58,526 - INFO - Highlight is scrollable
+2021-11-22 21:58:58,762 - INFO - Highlight is scrollable
+2021-11-22 21:58:58,926 - INFO - Highlight is scrollable
+2021-11-22 21:59:20,148 - ERROR - Unexpected error: 'UserHighlightModel' object is not subscriptable

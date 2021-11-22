@@ -1,0 +1,19 @@
+2021-11-22 22:46:52,513 - INFO - Opening https://www.instagram.com/
+2021-11-22 22:46:53,051 - INFO - Logging in to account _.j._.s._r
+2021-11-22 22:47:01,060 - INFO - Visiting casslks profile
+2021-11-22 22:47:03,335 - INFO - Has existing highlight
+2021-11-22 22:47:04,004 - INFO - Highlight is scrollable
+2021-11-22 22:47:04,195 - INFO - Highlight is scrollable
+2021-11-22 22:47:04,406 - INFO - Highlight is scrollable
+2021-11-22 22:47:04,709 - INFO - Highlight is scrollable
+2021-11-22 22:47:04,966 - INFO - Highlight is scrollable
+2021-11-22 22:47:05,211 - INFO - Highlight is scrollable
+2021-11-22 22:47:05,385 - INFO - Highlight is scrollable
+2021-11-22 22:47:15,784 - INFO - Highlight is left scrollable
+2021-11-22 22:47:15,834 - INFO - Highlight is left scrollable
+2021-11-22 22:47:15,871 - INFO - Highlight is left scrollable
+2021-11-22 22:47:15,908 - INFO - Highlight is left scrollable
+2021-11-22 22:47:15,947 - INFO - Highlight is left scrollable
+2021-11-22 22:47:16,003 - INFO - Highlight is left scrollable
+2021-11-22 22:47:16,035 - INFO - Highlight is left scrollable
+2021-11-22 22:47:38,836 - ERROR - Unexpected error: 'NoneType' object has no attribute 'click'

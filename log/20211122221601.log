@@ -1,0 +1,19 @@
+2021-11-22 22:16:05,329 - INFO - Opening https://www.instagram.com/
+2021-11-22 22:16:05,871 - INFO - Logging in to account _.j._.s._r
+2021-11-22 22:16:11,648 - INFO - Visiting casslks profile
+2021-11-22 22:16:14,732 - INFO - Has existing highlight
+2021-11-22 22:16:14,902 - INFO - Highlight is scrollable
+2021-11-22 22:16:15,202 - INFO - Highlight is scrollable
+2021-11-22 22:16:15,465 - INFO - Highlight is scrollable
+2021-11-22 22:16:15,708 - INFO - Highlight is scrollable
+2021-11-22 22:16:15,994 - INFO - Highlight is scrollable
+2021-11-22 22:16:16,378 - INFO - Highlight is scrollable
+2021-11-22 22:16:16,615 - INFO - Highlight is scrollable
+2021-11-22 22:16:27,000 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,081 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,124 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,160 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,217 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,261 - INFO - Highlight is left scrollable
+2021-11-22 22:16:27,291 - INFO - Highlight is left scrollable
+2021-11-22 22:16:40,183 - ERROR - Unexpected error: list indices must be integers or slices, not str

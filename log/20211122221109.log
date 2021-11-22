@@ -1,0 +1,9 @@
+2021-11-22 22:11:13,222 - INFO - Opening https://www.instagram.com/
+2021-11-22 22:11:13,224 - ERROR - Unable to login due to Message: no such window: target window already closed
+from unknown error: web view not found
+  (Session info: chrome=95.0.4638.69)
+
+2021-11-22 22:11:13,235 - ERROR - Unexpected error: Message: no such window: target window already closed
+from unknown error: web view not found
+  (Session info: chrome=95.0.4638.69)
+
