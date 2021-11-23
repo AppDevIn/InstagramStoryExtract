@@ -9,9 +9,8 @@ class DateUtil:
     TIME_FORMAT = "%H_%M_%S"
 
     @staticmethod
-    def getCurrentDate() -> str:
-        today = date.today()
-        return today.strftime("%Y%m%d")
+    def getCurrentDateTime():
+        return datetime.now()
 
     @staticmethod
     def utc_time_to_zone(utc_datetime: datetime, zone: str) -> datetime:

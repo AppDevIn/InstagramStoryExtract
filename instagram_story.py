@@ -1,4 +1,3 @@
-# Simple assignment
 import requests
 import os
 import logging
@@ -9,7 +8,6 @@ from src.DateUtil import DateUtil
 from src.FileUtil import FileUtil
 from src.Selenium import InstagramSelenium
 import sys
-from pytz import timezone
 
 load_dotenv()
 username = os.getenv('username')

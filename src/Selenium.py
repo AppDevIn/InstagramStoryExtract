@@ -1,3 +1,5 @@
+import time
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -6,8 +8,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+
 import logging
 import pdb
+
+from src.model.UserHighlightModel import UserHighlightModel
 
 
 class InstagramSelenium:
@@ -51,7 +56,18 @@ class InstagramSelenium:
             return False
 
     def visitProfilePage(self, username):
-        return NotImplemented
+        self.logger.info(f"Visiting {username} profile")
+        try:
+            self.driver.get(
+                f"https://www.instagram.com/{username}/")
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "/html/body/div[1]/section/nav/div[2]/div/div/div[1]/a/div/div"))
+            )
+            return True
+        except Exception as e:
+            self.logger.error(f"Unable to access user profile {e}")
+            return False
 
     def visitUserStoryPage(self, username) -> bool:
         self.logger.info(f"Visiting {username} story")
@@ -107,6 +123,109 @@ class InstagramSelenium:
             return video_value
         except Exception as e:
             return ""
+
+    def hasHighlight(self) -> bool:
+        try:
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_xpath(
+                    "/html/body/div[1]/section/main/div/div[1]/div/div/div/ul/li[3]"))
+            self.logger.info("Has existing highlight")
+            return True
+        except TimeoutException as e:
+            self.logger.error("No existing highlight")
+            return False
+
+    def getHighlights(self):
+        listOfHighlight = UserHighlightModel()
+        listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                ".tUtVM img")))
+        while self.isHighlightScrollable():
+            WebDriverWait(self.driver, 2).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J._6CZji")).click()
+            listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    ".tUtVM img")))
+        return listOfHighlight
+
+    def restartHighLightPosition(self):
+        while self.isLeftHighlightScrollable():
+            WebDriverWait(self.driver, 2).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J.POSa_")).click()
+
+    def getNameOfHighlight(self, highlight):
+        names = []
+        for element in highlight:
+            names.append(element.get_attribute("alt"))
+        return names
+
+    def clickOnHighLightSelected(self, name):
+
+        listOfHighlight = UserHighlightModel()
+        listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                ".tUtVM img")))
+        listOfHighlight.appendWebElement(WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                "._3D7yK")))
+        while name not in listOfHighlight.arrOfNames:
+            listOfHighlight.elements = {}
+            listOfHighlight.arrOfNames = []
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J._6CZji")).click()
+            listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    ".tUtVM img")))
+            listOfHighlight.appendWebElement(WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_elements_by_css_selector(
+                    "._3D7yK")))
+
+        listOfHighlight.elements[name].click()
+
+    def visitHighlight(self, id):
+        try:
+            self.driver.get(
+                f"https://www.instagram.com/stories/highlights/{id}/")
+
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_element_by_xpath(
+                    "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
+            return True
+        except TimeoutException as e:
+            self.logger.error("No existing highlight")
+            return False
+        except Exception as e:
+            self.logger.error(f"Unable to view story due to {e}")
+            return False
+
+
+    def isHighlightScrollable(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J._6CZji"))
+            self.logger.info("Highlight is scrollable")
+            return True
+        except TimeoutException as e:
+            return False
+
+    def isLeftHighlightScrollable(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                lambda d: d.find_element_by_css_selector(
+                    ".Szr5J.POSa_"))
+            self.logger.info("Highlight is left scrollable")
+            return True
+        except TimeoutException as e:
+            return False
+
+    def getHighlightName(self, index) -> str:
+        return self.driver.find_element_by_xpath(
+            f"/html/body/div[1]/section/main/div/div[1]/div/div/div/ul/li[3]/div/div/div[1]/div/img"
+        ).get_attribute('alt')
 
     def closeDriver(self):
         self.driver.close()
