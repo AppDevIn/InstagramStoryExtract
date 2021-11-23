@@ -85,7 +85,8 @@ def main(instagram: InstagramSelenium):
 
 
 if __name__ == "__main__":
-    logFile = FileUtil(log_path, f"{DateUtil.getCurrentDateTime().strftime(DateUtil.DATETIME_FORMAT)}.log")
+    logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
+                       , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
     instagram = InstagramSelenium(logger, isHeadless(sys.argv))
