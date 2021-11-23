@@ -141,7 +141,7 @@ class InstagramSelenium:
             lambda d: d.find_elements_by_css_selector(
                 ".tUtVM img")))
         while self.isHighlightScrollable():
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 2).until(
                 lambda d: d.find_element_by_css_selector(
                     ".Szr5J._6CZji")).click()
             listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
@@ -151,7 +151,7 @@ class InstagramSelenium:
 
     def restartHighLightPosition(self):
         while self.isLeftHighlightScrollable():
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 2).until(
                 lambda d: d.find_element_by_css_selector(
                     ".Szr5J.POSa_")).click()
 
@@ -167,7 +167,9 @@ class InstagramSelenium:
         listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
             lambda d: d.find_elements_by_css_selector(
                 ".tUtVM img")))
-
+        listOfHighlight.appendWebElement(WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                "._3D7yK")))
         while name not in listOfHighlight.arrOfNames:
             listOfHighlight.elements = {}
             listOfHighlight.arrOfNames = []
@@ -179,9 +181,26 @@ class InstagramSelenium:
                     ".tUtVM img")))
             listOfHighlight.appendWebElement(WebDriverWait(self.driver, 10).until(
                 lambda d: d.find_elements_by_css_selector(
-                    "._3D7yK"))).click()
+                    "._3D7yK")))
 
         listOfHighlight.elements[name].click()
+
+    def visitHighlight(self, id):
+        try:
+            self.driver.get(
+                f"https://www.instagram.com/stories/highlights/{id}/")
+
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_element_by_xpath(
+                    "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button")).click()
+            return True
+        except TimeoutException as e:
+            self.logger.error("No existing highlight")
+            return False
+        except Exception as e:
+            self.logger.error(f"Unable to view story due to {e}")
+            return False
+
 
     def isHighlightScrollable(self):
         try:

@@ -8,7 +8,6 @@ class UserHighlightModel:
         self.elements = {}
 
     def appendElements(self, web_elements):
-
         for element in web_elements:
             name = element.get_attribute("alt")
             if name not in self.arrOfNames:
