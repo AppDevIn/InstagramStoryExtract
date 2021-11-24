@@ -1,7 +1,7 @@
 import requests
 import os
 import logging
-from datetime import date, datetime
+from datetime import datetime
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
