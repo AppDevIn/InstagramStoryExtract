@@ -15,7 +15,7 @@ username = os.getenv('username')
 password = os.getenv('password')
 profileName = os.getenv('default_account')
 log_path = os.getenv('log_folder')
-data_path = os.getenv('data_folder')
+data_path = os.getenv('highlight_data_folder')
 zone = os.getenv('timezone')
 
 def downloadImage(link, name, path):
@@ -39,10 +39,12 @@ def setUpLogging(filename: str) -> logging.Logger:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
+    stdout_handler = logging.StreamHandler(sys.stdout)
     file_handler = logging.FileHandler(filename)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)
+    logger.addHandler(stdout_handler)
     return logger
 
 
@@ -75,16 +77,16 @@ def main(instagram: InstagramSelenium):
 
     image_count = 0
 
+    highlightName = instagram.getHighlightFromStory()
+
+    path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
+
     while instagram.stillInStory():
         dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromStory(), zone)
 
-        path = FileUtil(f"{data_path}/{dateTime.strftime(DateUtil.DATE_FORMAT)}/") \
-            .createFolder().getDir()
-
         logger.info(f"Story was posted on {dateTime}")
-        logger.info(f"File is saved into {path}")
 
-        filename = dateTime.strftime(DateUtil.TIME_FORMAT)
+        filename = dateTime.strftime(DateUtil.DATETIME_FORMAT_WITH_UNDERSCORE)
 
         videoLink = instagram.getStoryVideoLink()
 

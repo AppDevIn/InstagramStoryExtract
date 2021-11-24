@@ -161,6 +161,13 @@ class InstagramSelenium:
             names.append(element.get_attribute("alt"))
         return names
 
+    def getHighlightFromStory(self):
+        element = WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_element_by_css_selector(
+                ".FPmhX"))
+        return element.get_attribute("innerHTML")
+
+
     def clickOnHighLightSelected(self, name):
 
         listOfHighlight = UserHighlightModel()

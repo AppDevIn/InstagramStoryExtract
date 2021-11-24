@@ -7,6 +7,7 @@ class DateUtil:
     DATE_FORMAT = "%Y%m%d"
     DATETIME_FORMAT = "%Y%m%d%H%M%S"
     TIME_FORMAT = "%H_%M_%S"
+    DATETIME_FORMAT_WITH_UNDERSCORE = "%Y_%m_%d_%H_%M_%S"
 
     @staticmethod
     def getCurrentDateTime():
