@@ -13,7 +13,7 @@ load_dotenv()
 username = os.getenv('username')
 password = os.getenv('password')
 profileName = os.getenv('default_account')
-log_path = os.getenv('log_folder')
+log_path = os.getenv('highlight_log_folder')
 data_path = os.getenv('highlight_data_folder')
 zone = os.getenv('timezone')
 
