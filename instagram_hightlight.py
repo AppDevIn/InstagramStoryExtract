@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime
 import requests
+import pdb
 
 from src.DateUtil import DateUtil
 from src.FileUtil import FileUtil
@@ -17,6 +18,7 @@ log_path = os.getenv('highlight_log_folder')
 data_path = os.getenv('highlight_data_folder')
 zone = os.getenv('timezone')
 
+
 def downloadImage(link, name, path):
     url = link.split()[0]
     r = requests.get(url)
@@ -29,8 +31,20 @@ def downloadVideo(url, name, path):
 
     open(f'{path}{name}.mp4', 'wb').write(r.content)
 
+
 def isHeadless(args):
-    return "--headless" in sys.argv
+    return "--headless" in args
+
+
+def isId(args):
+    return "--id" in args
+
+
+def getId(args) -> str:
+    index = args.index("--id") + 1
+    if index > (len(args) - 1):
+        return ""
+    return args[index]
 
 
 def setUpLogging(filename: str) -> logging.Logger:
@@ -58,21 +72,8 @@ def default(instagram: InstagramSelenium, highlights):
     instagram.clickOnHighLightSelected(highlights.arrOfNames[int(chosenName)])
 
 
-def main(instagram: InstagramSelenium):
-    if not instagram.loginToInstagram(username, password):
-        instagram.closeDriver()
-        exit()
-
-    if not instagram.visitProfilePage(profileName):
-        instagram.closeDriver()
-        exit()
-
-    if not instagram.hasHighlight():
-        instagram.closeDriver()
-        exit()
-
-    id = input("What is the highlight id: ")
-    instagram.visitHighlight(id)
+def idRun(instagram: InstagramSelenium, highlight_id):
+    instagram.visitHighlight(highlight_id)
 
     image_count = 0
 
@@ -99,6 +100,26 @@ def main(instagram: InstagramSelenium):
 
     logger.info(f"The number of image/video downloaded are {image_count}")
     instagram.closeDriver()
+
+
+def main(instagram: InstagramSelenium):
+    if not instagram.loginToInstagram(username, password):
+        instagram.closeDriver()
+        exit()
+
+    if not instagram.visitProfilePage(profileName):
+        instagram.closeDriver()
+        exit()
+
+    if not instagram.hasHighlight():
+        instagram.closeDriver()
+        exit()
+
+    if isId(sys.argv) is True and getId(sys.argv) is not None:
+        idRun(instagram, getId(sys.argv))
+    else:
+        highlight_id = input("What is the highlight id: ")
+        idRun(instagram, highlight_id)
 
 
 if __name__ == "__main__":
