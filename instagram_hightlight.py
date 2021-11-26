@@ -121,6 +121,8 @@ def main(instagram: InstagramSelenium):
         highlight_id = input("What is the highlight id: ")
         idRun(instagram, highlight_id)
 
+    instagram.closeDriver()
+
 
 if __name__ == "__main__":
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
