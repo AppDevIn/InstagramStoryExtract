@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from datetime import datetime
 import requests
 import pdb
@@ -40,6 +41,10 @@ def isId(args):
     return "--id" in args
 
 
+def isAll(args):
+    return "--all" in args
+
+
 def getId(args) -> str:
     index = args.index("--id") + 1
     if index > (len(args) - 1):
@@ -77,7 +82,7 @@ def idRun(instagram: InstagramSelenium, highlight_id):
 
     image_count = 0
 
-    highlightName = instagram.getHighlightFromStory()
+    highlightName = instagram.getHighlightNameFromStory()
 
     path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
 
@@ -99,7 +104,36 @@ def idRun(instagram: InstagramSelenium, highlight_id):
         instagram.nextStory()
 
     logger.info(f"The number of image/video downloaded are {image_count}")
-    instagram.closeDriver()
+
+
+def allHighlightRun(instagram: InstagramSelenium):
+    # Click the first highlight
+    instagram.clickOnHighlight()
+
+    # Look through the the story
+    image_count = 0
+
+    highlightName = instagram.getHighlightNameFromStory()
+
+    while instagram.stillInHighlight(profileName):
+        highlightName = instagram.getHighlightNameFromStory()
+
+        path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
+        dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromHighlight(), zone)
+
+        logger.info(f"Downloading story that was posted on {dateTime}")
+
+        filename = dateTime.strftime(DateUtil.DATETIME_FORMAT_WITH_UNDERSCORE)
+
+        videoLink = instagram.getHighlightVideoLink()
+
+        if videoLink != "":
+            downloadVideo(videoLink, filename, path)
+        else:
+            downloadImage(instagram.getHighlightImageLink(), filename, path)
+        image_count += 1
+
+        instagram.nextHighlight()
 
 
 def main(instagram: InstagramSelenium):
@@ -117,11 +151,13 @@ def main(instagram: InstagramSelenium):
 
     if isId(sys.argv) is True and getId(sys.argv) is not None:
         idRun(instagram, getId(sys.argv))
+    elif isAll(sys.argv) is True:
+        allHighlightRun(instagram)
     else:
         highlight_id = input("What is the highlight id: ")
         idRun(instagram, highlight_id)
 
-    instagram.closeDriver()
+    # instagram.closeDriver()
 
 
 if __name__ == "__main__":
@@ -134,5 +170,5 @@ if __name__ == "__main__":
     try:
         main(instagramSelenium)
     except Exception as e:
-        instagramSelenium.closeDriver()
+        # instagramSelenium.closeDriver()
         logger.error(f"Unexpected error: {e}")
