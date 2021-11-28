@@ -5,9 +5,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
+from src.Exception.CustomException import InstagramException
 from src.FileUtil import FileUtil
-from src.Selenium import InstagramSelenium
 import sys
+
+from src.Bot.StoryBot import StoryBot
 
 load_dotenv()
 username = os.getenv('username')
@@ -49,41 +51,45 @@ def isHeadless(args):
     return "--headless" in sys.argv
 
 
-def main(instagram: InstagramSelenium):
-    if not instagram.loginToInstagram(username, password):
-        instagram.closeDriver()
-        exit()
+def main(instagram: StoryBot):
 
-    if not instagram.visitUserStoryPage(profileName):
-        instagram.closeDriver()
-        exit()
-
-    image_count = 0
-
-    while instagram.stillInStory():
-        dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromStory(), zone)
-
-        path = FileUtil(f"{data_path}/{dateTime.strftime(DateUtil.DATE_FORMAT)}/") \
-            .createFolder().getDir()
-
-        logger.info(f"Story was posted on {dateTime}")
-        logger.info(f"File is saved into {path}")
-
-        filename = dateTime.strftime(DateUtil.TIME_FORMAT)
-
-        videoLink = instagram.getStoryVideoLink()
-
-        if videoLink != "":
-            downloadVideo(videoLink, filename, path)
-        else:
-            downloadImage(instagram.getStoryImageLink(), filename, path)
-        image_count += 1
-
-        instagram.nextStory()
-
-    logger.info(f"The number of image/video downloaded are {image_count}")
-
-    instagram.closeDriver()
+    instagram.landOnPage()
+    instagram.waitTillLoginPageLoaded(10)
+    instagram.loginIntoInstagram(username, password)
+    instagram.waitTillInstagramLogoDetected(10)
+    instagram.landOnUserStory(profileName)
+    instagram.clickOnConfirmationToView()
+    #
+    # if not instagram.visitUserStoryPage(profileName):
+    #     instagram.closeDriver()
+    #     exit()
+    #
+    # image_count = 0
+    #
+    # while instagram.stillInStory():
+    #     dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromStory(), zone)
+    #
+    #     path = FileUtil(f"{data_path}/{dateTime.strftime(DateUtil.DATE_FORMAT)}/") \
+    #         .createFolder().getDir()
+    #
+    #     logger.info(f"Story was posted on {dateTime}")
+    #     logger.info(f"File is saved into {path}")
+    #
+    #     filename = dateTime.strftime(DateUtil.TIME_FORMAT)
+    #
+    #     videoLink = instagram.getStoryVideoLink()
+    #
+    #     if videoLink != "":
+    #         downloadVideo(videoLink, filename, path)
+    #     else:
+    #         downloadImage(instagram.getStoryImageLink(), filename, path)
+    #     image_count += 1
+    #
+    #     instagram.nextStory()
+    #
+    # logger.info(f"The number of image/video downloaded are {image_count}")
+    #
+    # instagram.closeDriver()
 
 
 if __name__ == "__main__":
@@ -91,9 +97,9 @@ if __name__ == "__main__":
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    instagram = InstagramSelenium(logger, isHeadless(sys.argv))
+    instagram = StoryBot(isHeadless(sys.argv))
     try:
         main(instagram)
-    except Exception as e:
+    except InstagramException as e:
         instagram.closeDriver()
-        logger.error(f"Unexpected error: {e}")
+        logger.error(e.message)
