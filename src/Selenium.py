@@ -97,13 +97,31 @@ class InstagramSelenium:
         except NoSuchElementException:
             return False
 
+    def stillInHighlight(self, profile_name) -> bool:
+        try:
+            if self.driver.current_url == f"https://www.instagram.com/{profile_name}/":
+                return False
+            return True
+        except NoSuchElementException:
+            return False
+
     def nextStory(self):
         self.driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/button[2]").click()
 
+    def nextHighlight(self):
+        self.driver.find_element_by_css_selector(".FhutL").click()
+
     def getTimeFromStory(self) -> datetime:
         time = self.driver.find_element_by_xpath(
             "/html/body/div[1]/section/div[1]/div/section/div/header/div[2]/div[1]/div/div/div/time"
+        )
+        time_str = time.get_attribute("datetime")[:-5]
+        return datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
+
+    def getTimeFromHighlight(self) -> datetime:
+        time = self.driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div[1]/div/div[5]/section/div/header/div[2]/div[1]/div/div/div/time"
         )
         time_str = time.get_attribute("datetime")[:-5]
         return datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
@@ -119,6 +137,22 @@ class InstagramSelenium:
         try:
             video = self.driver.find_element_by_xpath(
                 "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/video/source")
+            video_value = video.get_attribute("src")
+            return video_value
+        except Exception as e:
+            return ""
+
+    def getHighlightImageLink(self) -> str:
+        image = self.driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div[1]/div/div[5]/section/div/div[1]/div/div/img")
+        value = image.get_attribute("srcset")
+        value = value.split(',')
+        return value[0]
+
+    def getHighlightVideoLink(self) -> str:
+        try:
+            video = self.driver.find_element_by_xpath(
+                "/html/body/div[1]/section/div[1]/div/div[5]/section/div/div[1]/div/div/video/source")
             video_value = video.get_attribute("src")
             return video_value
         except Exception as e:
@@ -161,15 +195,13 @@ class InstagramSelenium:
             names.append(element.get_attribute("alt"))
         return names
 
-    def getHighlightFromStory(self):
+    def getHighlightNameFromStory(self):
         element = WebDriverWait(self.driver, 10).until(
             lambda d: d.find_element_by_css_selector(
                 ".FPmhX"))
         return element.get_attribute("innerHTML")
 
-
     def clickOnHighLightSelected(self, name):
-
         listOfHighlight = UserHighlightModel()
         listOfHighlight.appendElements(WebDriverWait(self.driver, 10).until(
             lambda d: d.find_elements_by_css_selector(
@@ -192,6 +224,11 @@ class InstagramSelenium:
 
         listOfHighlight.elements[name].click()
 
+    def clickOnHighlight(self):
+        WebDriverWait(self.driver, 10).until(
+            lambda d: d.find_elements_by_css_selector(
+                "._3D7yK"))[0].click()
+
     def visitHighlight(self, id):
         try:
             self.driver.get(
@@ -207,7 +244,6 @@ class InstagramSelenium:
         except Exception as e:
             self.logger.error(f"Unable to view story due to {e}")
             return False
-
 
     def isHighlightScrollable(self):
         try:
