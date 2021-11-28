@@ -111,15 +111,15 @@ def allHighlightRun(instagram: InstagramSelenium):
     instagram.clickOnHighlight()
 
     # Look through the the story
-    image_count, highlight_count = 0
-
+    image_count, highlight_count = 0, 0
     highlightName = instagram.getHighlightNameFromStory()
+    path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
 
     logger.info(f"Downloading stories for {highlightName}")
 
     while instagram.stillInHighlight(profileName):
         if highlightName != instagram.getHighlightNameFromStory():
-            logger.info(f"{highlightName} hsa {highlight_count}")
+            logger.info(f"{highlightName} has {highlight_count}")
             highlight_count = 0
             highlightName = instagram.getHighlightNameFromStory()
             path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
