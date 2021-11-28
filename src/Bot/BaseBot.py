@@ -61,5 +61,12 @@ class BaseBot(webdriver.Chrome):
         except Exception as e:
             raise InstagramException("Unable to detect logo", str(e))
 
+    def landProfilePage(self, profile_name):
+        try:
+            self.get(
+                f"https://www.instagram.com/{profile_name}/")
+        except Exception as e:
+            raise InstagramException(f"Unable to access {profile_name}'s profile", str(e))
+
     def closeDriver(self):
         self.close()

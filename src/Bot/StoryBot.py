@@ -1,8 +1,6 @@
 from datetime import datetime
 
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from src.Bot.BaseBot import BaseBot
@@ -14,6 +12,10 @@ class StoryBot(BaseBot):
 
     def __init__(self, headless):
         super(StoryBot, self).__init__(headless)
+
+    def __int__(self, base: BaseBot):
+        super(base)
+        return None
 
     def landOnUserStory(self, profile_name):
         self.get(f"{const.BASE_URL}/stories/{profile_name}/")

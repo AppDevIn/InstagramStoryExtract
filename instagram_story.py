@@ -62,9 +62,9 @@ def main(bot: StoryBot):
         logger.info(f"Story was posted on {dateTime}")
 
         if bot.isVideo():
-            stories.addStory(bot.getVideoLink(), dateTime, True)
+            stories.add(bot.getVideoLink(), dateTime, True)
         else:
-            stories.addStory(bot.getImageLink(), dateTime, False)
+            stories.add(bot.getImageLink(), dateTime, False)
 
         bot.next()
     logger.info("End stories extract")
@@ -73,7 +73,7 @@ def main(bot: StoryBot):
     logger.info(f"The number of image/video are {stories.getSize()}")
     logger.info(f"Attempting to download them")
 
-    for story in stories.getStories():
+    for story in stories.getAll():
         file = FileUtil(f"{data_path}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
         filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
         if story.video:
