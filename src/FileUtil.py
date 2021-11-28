@@ -1,6 +1,20 @@
 import os
+
+import requests
 import uuid0
 import pdb
+
+
+def writeImage(link, name, path):
+    url = link.split()[0]
+    r = requests.get(url)
+
+    open(f'{path}{name}.jpg', 'wb').write(r.content)
+
+
+def writeVideo(url, name, path):
+    r = requests.get(url)
+    open(f'{path}{name}.mp4', 'wb').write(r.content)
 
 
 class FileUtil:
@@ -25,4 +39,3 @@ class FileUtil:
 
     def getDir(self) -> str:
         return self.dir_path
-

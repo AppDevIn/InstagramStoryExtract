@@ -13,7 +13,6 @@ import logging
 import pdb
 
 from src.Exception.CustomException import InstagramException
-from src.model.UserHighlightModel import UserHighlightModel
 
 
 class BaseBot(webdriver.Chrome):

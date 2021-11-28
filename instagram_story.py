@@ -1,4 +1,3 @@
-import requests
 import os
 import logging
 from datetime import datetime
@@ -6,10 +5,11 @@ from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException
-from src.FileUtil import FileUtil
+from src.FileUtil import FileUtil, writeVideo, writeImage
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.model.StoriesModel import StoriesModel
 
 load_dotenv()
 username = os.getenv('username')
@@ -18,19 +18,6 @@ profileName = os.getenv('default_account')
 log_path = os.getenv('log_folder')
 data_path = os.getenv('data_folder')
 zone = os.getenv('timezone')
-
-
-def downloadImage(link, name, path):
-    url = link.split()[0]
-    r = requests.get(url)
-
-    open(f'{path}{name}.jpg', 'wb').write(r.content)
-
-
-def downloadVideo(url, name, path):
-    r = requests.get(url)
-
-    open(f'{path}{name}.mp4', 'wb').write(r.content)
 
 
 def setUpLogging(filename: str) -> logging.Logger:
@@ -51,45 +38,51 @@ def isHeadless(args):
     return "--headless" in sys.argv
 
 
-def main(instagram: StoryBot):
+def main(bot: StoryBot):
+    logger.info("Opening the landing page")
+    bot.landOnPage()
+    bot.waitTillLoginPageLoaded(10)
+    logger.info("The page has loaded")
+    bot.loginIntoInstagram(username, password)
+    logger.info("Attempting with the credentials given in .env")
+    logger.info(f"Login with username {username}")
+    bot.waitTillInstagramLogoDetected(10)
+    logger.info("Login was successful")
+    logger.info(f"Attempting to open the user story of {profileName}")
+    bot.landOnUserStory(profileName)
+    bot.clickOnConfirmationToView()
+    logger.info(f"Able to view the user story")
 
-    instagram.landOnPage()
-    instagram.waitTillLoginPageLoaded(10)
-    instagram.loginIntoInstagram(username, password)
-    instagram.waitTillInstagramLogoDetected(10)
-    instagram.landOnUserStory(profileName)
-    instagram.clickOnConfirmationToView()
-    #
-    # if not instagram.visitUserStoryPage(profileName):
-    #     instagram.closeDriver()
-    #     exit()
-    #
-    # image_count = 0
-    #
-    # while instagram.stillInStory():
-    #     dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromStory(), zone)
-    #
-    #     path = FileUtil(f"{data_path}/{dateTime.strftime(DateUtil.DATE_FORMAT)}/") \
-    #         .createFolder().getDir()
-    #
-    #     logger.info(f"Story was posted on {dateTime}")
-    #     logger.info(f"File is saved into {path}")
-    #
-    #     filename = dateTime.strftime(DateUtil.TIME_FORMAT)
-    #
-    #     videoLink = instagram.getStoryVideoLink()
-    #
-    #     if videoLink != "":
-    #         downloadVideo(videoLink, filename, path)
-    #     else:
-    #         downloadImage(instagram.getStoryImageLink(), filename, path)
-    #     image_count += 1
-    #
-    #     instagram.nextStory()
-    #
-    # logger.info(f"The number of image/video downloaded are {image_count}")
-    #
-    # instagram.closeDriver()
+    stories = StoriesModel()
+
+    logger.info("Starting to extract stories")
+    while bot.stillInStory():
+        bot.implicitly_wait(0)
+        dateTime = DateUtil.utc_time_to_zone(bot.getTimeOfStory(), zone)
+        logger.info(f"Story was posted on {dateTime}")
+
+        if bot.isVideo():
+            stories.addStory(bot.getVideoLink(), dateTime, True)
+        else:
+            stories.addStory(bot.getImageLink(), dateTime, False)
+
+        bot.next()
+    logger.info("End stories extract")
+    bot.implicitly_wait(5)
+
+    logger.info(f"The number of image/video are {stories.getSize()}")
+    logger.info(f"Attempting to download them")
+
+    for story in stories.getStories():
+        file = FileUtil(f"{data_path}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
+        filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
+        if story.video:
+            writeVideo(story.media, filename, file.createFolder().getDir())
+        else:
+            writeImage(story.media, filename, file.createFolder().getDir())
+        logger.info(f"File is saved into {file.getDir()}")
+
+    bot.closeDriver()
 
 
 if __name__ == "__main__":
