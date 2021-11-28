@@ -111,14 +111,20 @@ def allHighlightRun(instagram: InstagramSelenium):
     instagram.clickOnHighlight()
 
     # Look through the the story
-    image_count = 0
+    image_count, highlight_count = 0
 
     highlightName = instagram.getHighlightNameFromStory()
 
-    while instagram.stillInHighlight(profileName):
-        highlightName = instagram.getHighlightNameFromStory()
+    logger.info(f"Downloading stories for {highlightName}")
 
-        path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
+    while instagram.stillInHighlight(profileName):
+        if highlightName != instagram.getHighlightNameFromStory():
+            logger.info(f"{highlightName} hsa {highlight_count}")
+            highlight_count = 0
+            highlightName = instagram.getHighlightNameFromStory()
+            path = FileUtil(f"{data_path}/{profileName}/{highlightName}/").createFolder().getDir()
+            logger.info(f"Downloading stories for {highlightName}")
+
         dateTime = DateUtil.utc_time_to_zone(instagram.getTimeFromHighlight(), zone)
 
         logger.info(f"Downloading story that was posted on {dateTime}")
@@ -132,8 +138,10 @@ def allHighlightRun(instagram: InstagramSelenium):
         else:
             downloadImage(instagram.getHighlightImageLink(), filename, path)
         image_count += 1
+        highlight_count += 1
 
         instagram.nextHighlight()
+    logger.info(f"The number of image/video downloaded are {image_count}")
 
 
 def main(instagram: InstagramSelenium):
