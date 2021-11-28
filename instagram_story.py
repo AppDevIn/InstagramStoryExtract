@@ -70,7 +70,7 @@ def main(bot: StoryBot):
     logger.info("End stories extract")
     bot.implicitly_wait(5)
 
-    logger.info(f"The number of image/video are {stories.getSize()}")
+    logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
     logger.info(f"Attempting to download them")
 
     for story in stories.getAll():

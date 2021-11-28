@@ -75,7 +75,7 @@ def setUpLogging(filename: str) -> logging.Logger:
 
 
 def downloadFiles(stories, highlight_name):
-    logger.info(f"Attempting to download {highlight_name} with {stories.getSize()}")
+    logger.info(f"Attempting to download {highlight_name} with {stories.getSize()} highlights")
 
     count = 0
     for story in stories.getAll():
@@ -86,7 +86,7 @@ def downloadFiles(stories, highlight_name):
         else:
             writeImage(story.media, filename, file.createFolder().getDir())
         if count % 10 == 0:
-            logger.info(f"{count}/{stories.getSize()} downloaded")
+            logger.info(f"{count}/{stories.getSize()} has been downloaded")
         count += 1
 
     logger.info(f"{count}/{stories.getSize()} have been downloaded")
@@ -113,7 +113,6 @@ def idRun(bot: StoryBot, name):
     while bot.stillInStory():
         bot.implicitly_wait(0)
         dateTime = DateUtil.utc_time_to_zone(bot.getTimeOfStory(), zone)
-        logger.info(f"Story was posted on {dateTime}")
 
         if bot.isVideo():
             highlight.add(bot.getVideoLink(), dateTime, True)
@@ -124,7 +123,7 @@ def idRun(bot: StoryBot, name):
     logger.info("End highlight extract")
     bot.implicitly_wait(5)
 
-    logger.info(f"The number of image/video are {highlight.getSize()}")
+    logger.info(f"The number of image/video needed to be downloaded are {highlight.getSize()}")
     downloadFiles(highlight, highlight.name)
 
 
@@ -136,15 +135,16 @@ def allHighlightRun(bot: HighlightBot):
     highlights = HighlightsModel()
 
     logger.info("Start of highlight extract")
+    logger.info(f"Extract highlight {highlight.name}")
     while bot.stillInHighlight(profileName):
         if highlight.name != bot.getName():
             highlights.add(highlight)
-            logger.info(f"{highlight.name} has {highlight.getSize()}")
+            logger.info(f"{highlight.name} has {highlight.getSize()} highlight")
             highlight = UserHighlightModel(bot.getName())
+            logger.info(f"Extract highlight {highlight.name}")
 
         bot.implicitly_wait(0)
         dateTime = DateUtil.utc_time_to_zone(bot.getTimeOfHighlight(), zone)
-        logger.info(f"Story was posted on {dateTime}")
 
         if bot.isVideo():
             highlight.add(bot.getVideoLink(), dateTime, True)
@@ -152,9 +152,11 @@ def allHighlightRun(bot: HighlightBot):
             highlight.add(bot.getImageLink(), dateTime, False)
 
         bot.next()
+    highlights.add(highlight)
+    logger.info(f"{highlight.name} has {highlight.getSize()}")
     logger.info("End highlight extract")
     bot.implicitly_wait(5)
-    logger.info(f"The number of image/video downloaded are {highlights.getTotalMediaSize()}")
+    logger.info(f"The number of image/video needed to be downloaded are {highlights.getTotalMediaSize()}")
 
     for highlight in highlights.getAll():
         downloadFiles(highlight, highlight.name)
@@ -205,8 +207,8 @@ if __name__ == "__main__":
     try:
         main(highlightBot)
     except InstagramException as e:
-        # instagram.closeDriver()
+        highlightBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        # instagramSelenium.closeDriver()
+        highlightBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
