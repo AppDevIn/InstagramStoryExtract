@@ -87,34 +87,30 @@ def main(bot: StoryBot):
     bot.closeDriver()
 
 
-def quitWindow(window, bot):
+def quitWindow(window):
     window.destroy()
-    bot.closeDriver()
 
 
-def subTryAgain(bot, window):
+def subTryAgain(window):
     window.destroy()
-    try:
-        main(bot)
-    except InstagramException as e:
-        logger.error(e.message)
-        tryAgain(instagram, e.message)
+    run()
 
 
-def tryAgain(bot, error):
+def tryAgain(error):
     window = tk.Tk()
+    window.geometry("500x200")
     label = tk.Label(text=error)
     label.pack()
     try_btn = tk.Button(
         master=window,
         text="Try again",
-        command=partial(subTryAgain, bot, window)
+        command=partial(subTryAgain, window)
     )
 
     close_btn = tk.Button(
         master=window,
         text="Close",
-        command=partial(quitWindow, window, bot)
+        command=partial(quitWindow, window)
     )
 
     try_btn.pack()
@@ -123,14 +119,19 @@ def tryAgain(bot, error):
     window.mainloop()
 
 
+def run():
+    instagram = StoryBot(isHeadless(sys.argv))
+    try:
+        main(instagram)
+    except InstagramException as e:
+        instagram.closeDriver()
+        logger.error(e.message)
+        tryAgain(e.message)
+
+
 if __name__ == "__main__":
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    instagram = StoryBot(isHeadless(sys.argv))
-    try:
-        main(instagram)
-    except InstagramException as e:
-        logger.error(e.message)
-        tryAgain(instagram, e.message)
+    run()
