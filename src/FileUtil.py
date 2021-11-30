@@ -3,7 +3,7 @@ import os
 import requests
 import uuid0
 import pdb
-
+import logging
 
 def writeImage(link, name, path):
     url = link.split()[0]
@@ -15,6 +15,20 @@ def writeImage(link, name, path):
 def writeVideo(url, name, path):
     r = requests.get(url)
     open(f'{path}{name}.mp4', 'wb').write(r.content)
+
+
+def setUpLogging(filename: str) -> logging.Logger:
+    # Logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    logger.addHandler(stdout_handler)
+    return logger
 
 
 class FileUtil:
