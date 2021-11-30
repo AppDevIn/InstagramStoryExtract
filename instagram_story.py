@@ -1,5 +1,6 @@
 import os
 import logging
+import pdb
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -9,7 +10,9 @@ from src.FileUtil import FileUtil, writeVideo, writeImage
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.GUI import GUI
 from src.model.StoriesModel import StoriesModel
+from functools import partial
 
 load_dotenv()
 username = os.getenv('username')
@@ -36,6 +39,10 @@ def setUpLogging(filename: str) -> logging.Logger:
 
 def isHeadless(args):
     return "--headless" in sys.argv
+
+
+def isGUI():
+    return "--gui" in sys.argv
 
 
 def main(bot: StoryBot):
@@ -85,14 +92,34 @@ def main(bot: StoryBot):
     bot.closeDriver()
 
 
-if __name__ == "__main__":
-    logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
-                       , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
+def subTryAgain(window):
+    window.quit()
+    run()
 
-    logger = setUpLogging(logFile.createFolder().getPath())
+
+def tryAgain(error):
+    gui = GUI(error)
+    gui.setPositiveButton("Try again", partial(subTryAgain, gui))
+    gui.setNegativeButton("Close")
+    gui.start()
+
+
+def run():
     instagram = StoryBot(isHeadless(sys.argv))
     try:
         main(instagram)
     except InstagramException as e:
         instagram.closeDriver()
         logger.error(e.message)
+        if isGUI():
+            tryAgain(e.message)
+    except Exception as e:
+        logger.error(str(e))
+
+
+if __name__ == "__main__":
+    logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
+                       , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
+
+    logger = setUpLogging(logFile.createFolder().getPath())
+    run()
