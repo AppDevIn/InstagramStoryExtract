@@ -10,6 +10,8 @@ import sys
 
 from src.Bot.StoryBot import StoryBot
 from src.model.StoriesModel import StoriesModel
+import tkinter as tk
+from functools import partial
 
 load_dotenv()
 username = os.getenv('username')
@@ -85,6 +87,42 @@ def main(bot: StoryBot):
     bot.closeDriver()
 
 
+def quitWindow(window, bot):
+    window.destroy()
+    bot.closeDriver()
+
+
+def subTryAgain(bot, window):
+    window.destroy()
+    try:
+        main(bot)
+    except InstagramException as e:
+        logger.error(e.message)
+        tryAgain(instagram, e.message)
+
+
+def tryAgain(bot, error):
+    window = tk.Tk()
+    label = tk.Label(text=error)
+    label.pack()
+    try_btn = tk.Button(
+        master=window,
+        text="Try again",
+        command=partial(subTryAgain, bot, window)
+    )
+
+    close_btn = tk.Button(
+        master=window,
+        text="Close",
+        command=partial(quitWindow, window, bot)
+    )
+
+    try_btn.pack()
+    close_btn.pack()
+
+    window.mainloop()
+
+
 if __name__ == "__main__":
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
@@ -94,5 +132,5 @@ if __name__ == "__main__":
     try:
         main(instagram)
     except InstagramException as e:
-        instagram.closeDriver()
         logger.error(e.message)
+        tryAgain(instagram, e.message)
