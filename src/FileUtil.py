@@ -1,9 +1,11 @@
 import os
+import sys
 
 import requests
 import uuid0
 import pdb
 import logging
+
 
 def writeImage(link, name, path):
     url = link.split()[0]
@@ -32,7 +34,7 @@ def setUpLogging(filename: str) -> logging.Logger:
 
 
 class FileUtil:
-    def __init__(self, dir_path, filename = None):
+    def __init__(self, dir_path, filename=None):
         self.dir_path = dir_path
         self.filename = filename
 
