@@ -1,5 +1,6 @@
 import os
 import logging
+import pdb
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -9,8 +10,8 @@ from src.FileUtil import FileUtil, writeVideo, writeImage
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.GUI import GUI
 from src.model.StoriesModel import StoriesModel
-import tkinter as tk
 from functools import partial
 
 load_dotenv()
@@ -38,6 +39,10 @@ def setUpLogging(filename: str) -> logging.Logger:
 
 def isHeadless(args):
     return "--headless" in sys.argv
+
+
+def isGUI():
+    return "--gui" in sys.argv
 
 
 def main(bot: StoryBot):
@@ -87,36 +92,16 @@ def main(bot: StoryBot):
     bot.closeDriver()
 
 
-def quitWindow(window):
-    window.destroy()
-
-
 def subTryAgain(window):
-    window.destroy()
+    window.quit()
     run()
 
 
 def tryAgain(error):
-    window = tk.Tk()
-    window.geometry("500x200")
-    label = tk.Label(text=error)
-    label.pack()
-    try_btn = tk.Button(
-        master=window,
-        text="Try again",
-        command=partial(subTryAgain, window)
-    )
-
-    close_btn = tk.Button(
-        master=window,
-        text="Close",
-        command=partial(quitWindow, window)
-    )
-
-    try_btn.pack()
-    close_btn.pack()
-
-    window.mainloop()
+    gui = GUI(error)
+    gui.setPositiveButton("Try again", partial(subTryAgain, gui))
+    gui.setNegativeButton("Close")
+    gui.start()
 
 
 def run():
@@ -126,7 +111,10 @@ def run():
     except InstagramException as e:
         instagram.closeDriver()
         logger.error(e.message)
-        tryAgain(e.message)
+        if isGUI():
+            tryAgain(e.message)
+    except Exception as e:
+        logger.error(str(e))
 
 
 if __name__ == "__main__":
