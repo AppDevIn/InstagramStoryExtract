@@ -87,13 +87,13 @@ if __name__ == "__main__":
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    highlightBot = HighlightBot(isHeadless(sys.argv))
+    postBot = PostBot(isHeadless(sys.argv))
 
     try:
-        main(highlightBot)
+        main(postBot)
     except InstagramException as e:
-        highlightBot.closeDriver()
+        postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        highlightBot.closeDriver()
+        postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
