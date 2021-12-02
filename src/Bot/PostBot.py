@@ -93,5 +93,4 @@ class PostBot(BaseBot):
                 failedCallback(id, e)
                 self.nextPost()
 
-        self.closePost()
         return posts
