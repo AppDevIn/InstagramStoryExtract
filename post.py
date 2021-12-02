@@ -47,7 +47,7 @@ def downloadFiles(posts):
 
     count = 0
     for post in posts.getAll()[::-1]:
-        file = FileUtil(f"{data_path}/{profileName}/{count}/")
+        file = FileUtil(f"{data_path}/{profileName}/{post.id}/")
         index = 0
         for m in post.media:
             if m.video:
@@ -66,6 +66,10 @@ def downloadFiles(posts):
 def everySuccessfulPost(posts: ListOfPost):
     if posts.getSize() % 10 == 0:
         logger.info(f"Total number of post extracted so far are {posts.getSize()}")
+
+
+def failedExtract(id, e):
+    logger.error(f"Failed to extract the post id {id} due to {str(e)})")
 
 
 def main(bot: PostBot):
@@ -89,10 +93,11 @@ def main(bot: PostBot):
         return
 
     logger.info("Extracting posts from user profile")
-    posts: ListOfPost = bot.getPosts(everySuccessfulPost)
+    posts: ListOfPost = bot.getPosts(everySuccessfulPost, failedCallback=failedExtract)
     logger.info(f"Total number of post extracted are {posts.getSize()}")
 
     downloadFiles(posts)
+    bot.closePost()
 
 
 if __name__ == "__main__":
@@ -105,8 +110,8 @@ if __name__ == "__main__":
     try:
         main(postBot)
     except InstagramException as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")

@@ -1,15 +1,14 @@
 from datetime import datetime
 
-from selenium.common.exceptions import NoSuchElementException
+import pdb
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from src.Bot.BaseBot import BaseBot
 import src.model.constants as const
-from src.Exception.CustomException import InstagramException
 from src.model.ListOfPostModel import ListOfPost
-from src.model.post import Media
+from src.model.post import Media, Post
 
 
 class PostBot(BaseBot):
@@ -59,24 +58,40 @@ class PostBot(BaseBot):
     def closePost(self):
         self.find_element_by_css_selector("div._2dDPU > div.qF0y9 > button").click()
 
-    def getPosts(self, callback) -> ListOfPost:
+    def nextPost(self):
+        self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
+
+    def getPost(self, id) -> Post:
+        video = []
+        img = []
+        if self.hasImg():
+            img = list(
+                map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
+        if self.hasVideo():
+            video = list(
+                map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
+        img += video
+        caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
+        time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
+        time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
+        return Post(id, img, time, caption)
+
+    def getPosts(self, callback, failedCallback) -> ListOfPost:
         self.find_elements_by_css_selector(".eLAPa")[0].click()
         posts = ListOfPost()
         while True:
-            video = []
-            img = []
-            if self.hasImg():
-                img = list(map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
-            if self.hasVideo():
-                video = list(map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
-            img += video
-            caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
-            time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
-            time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-            posts.add(img, time, caption)
-            callback(posts)
-            if self.hasNextButton(2) is False:
-                break
-            self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
+            id = self.current_url.split("/p/")[-1][:-1]
+            try:
+                post = self.getPost(id)
+                posts.add(post)
+                callback(posts)
+                if self.hasNextButton(2) is False:
+                    break
+                self.nextPost()
+            except Exception as e:
+                pdb.set_trace()
+                failedCallback(id, e)
+                self.nextPost()
+
         self.closePost()
         return posts

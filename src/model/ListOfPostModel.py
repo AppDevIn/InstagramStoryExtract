@@ -5,8 +5,11 @@ class ListOfPost:
     def __init__(self):
         self.posts = []
 
-    def add(self, media, date_time, caption):
-        self.posts.append(Post(media, date_time, caption))
+    def add(self, id, media, date_time, caption):
+        self.posts.append(Post(id, media, date_time, caption))
+
+    def add(self, post: Post):
+        self.posts.append(post)
 
     def getAll(self):
         return self.posts

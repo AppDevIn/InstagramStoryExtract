@@ -1,5 +1,6 @@
 class Post:
-    def __init__(self, media, date_time, caption):
+    def __init__(self, id, media, date_time, caption):
+        self.id = id
         self.media = media
         self.dateTime = date_time
         self.caption = caption
