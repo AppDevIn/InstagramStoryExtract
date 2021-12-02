@@ -25,17 +25,26 @@ class PostBot(BaseBot):
         except Exception as e:
             return False
 
+    def hasNextButton(self, timeout) -> bool:
+        try:
+            WebDriverWait(self, timeout).until(
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, ".l8mY4 .wpO6b"))
+            )
+            return True
+        except Exception as e:
+            return False
+
     def getPosts(self) -> None:
-        list_of_posts = self.find_elements_by_css_selector(".eLAPa")
+        self.find_elements_by_css_selector(".eLAPa")[0].click()
         posts = ListOfPost()
-        for e in list_of_posts:
-            e.click()
+        while self.hasNextButton(5):
             media = list(map(lambda x: x.get_attribute("src"), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
             time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
             time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
             posts.add(media, time, caption)
-            self.find_element_by_css_selector(".BI4qX > button:nth-child(1)").click()
+            self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
         return posts
 
 
