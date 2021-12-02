@@ -55,6 +55,16 @@ class PostBot(BaseBot):
         finally:
             self.implicitly_wait(5)
 
+    def hasCaption(self):
+        self.implicitly_wait(1)
+        try:
+            self.find_element_by_css_selector(".ZyFrc .C4VMK > span")
+            return True
+        except Exception:
+            return False
+        finally:
+            self.implicitly_wait(5)
+
     def closePost(self):
         self.find_element_by_css_selector("div._2dDPU > div.qF0y9 > button").click()
 
@@ -64,6 +74,7 @@ class PostBot(BaseBot):
     def getPost(self, id) -> Post:
         video = []
         img = []
+        caption = None
         if self.hasImg():
             img = list(
                 map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
@@ -71,7 +82,8 @@ class PostBot(BaseBot):
             video = list(
                 map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
         img += video
-        caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
+        if self.hasCaption():
+            caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
         return Post(id, img, time, caption)

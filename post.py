@@ -18,8 +18,8 @@ load_dotenv()
 username = os.getenv('username')
 password = os.getenv('password')
 profileName = os.getenv('default_account')
-log_path = os.getenv('highlight_log_folder')
-data_path = os.getenv('highlight_data_folder')
+log_path = os.getenv('folder')+os.getenv('post_log_path')
+data_path = os.getenv('folder')+os.getenv('post_path')
 zone = os.getenv('timezone')
 
 
