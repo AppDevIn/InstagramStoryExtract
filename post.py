@@ -12,6 +12,7 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 
 from dotenv import load_dotenv
 from src.model.ListOfPostModel import ListOfPost
+from src.model.post import Post
 
 load_dotenv()
 username = os.getenv('username')
@@ -41,22 +42,30 @@ def getId(args) -> str:
     return args[index]
 
 
-def downloadFiles(stories, highlight_name):
-    logger.info(f"Attempting to download {highlight_name} with {stories.getSize()} highlights")
+def downloadFiles(posts):
+    logger.info(f"Attempting to download {posts.getSize()} posts from {profileName}")
 
     count = 0
-    for story in stories.getAll():
-        file = FileUtil(f"{data_path}/{profileName}/{highlight_name}/")
-        filename = story.dateTime.strftime(DateUtil.DATETIME_FORMAT_WITH_UNDERSCORE)
-        if story.video:
-            writeVideo(story.media, filename, file.createFolder().getDir())
-        else:
-            writeImage(story.media, filename, file.createFolder().getDir())
+    for post in posts.getAll()[::-1]:
+        file = FileUtil(f"{data_path}/{profileName}/{count}/")
+        index = 0
+        for m in post.media:
+            if m.video:
+                writeVideo(m.media, index, file.createFolder().getDir())
+            else:
+                writeImage(m.media, index, file.createFolder().getDir())
+            index += 1
+
         if count % 10 == 0:
-            logger.info(f"{count}/{stories.getSize()} has been downloaded")
+            logger.info(f"{count}/{posts.getSize()} has been downloaded")
         count += 1
 
-    logger.info(f"{count}/{stories.getSize()} have been downloaded")
+    logger.info(f"{count}/{posts.getSize()} have been downloaded")
+
+
+def everySuccessfulPost(posts: ListOfPost):
+    if posts.getSize() % 10 == 0:
+        logger.info(f"Total number of post extracted so far are {posts.getSize()}")
 
 
 def main(bot: PostBot):
@@ -79,8 +88,11 @@ def main(bot: PostBot):
         bot.closeDriver()
         return
 
-    posts: ListOfPost = bot.getPosts()
-    pdb.set_trace()
+    logger.info("Extracting posts from user profile")
+    posts: ListOfPost = bot.getPosts(everySuccessfulPost)
+    logger.info(f"Total number of post extracted are {posts.getSize()}")
+
+    downloadFiles(posts)
 
 
 if __name__ == "__main__":
