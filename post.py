@@ -5,20 +5,13 @@ from datetime import datetime
 import requests
 import pdb
 
-from src.Bot import PostBot
-from src.Bot.BaseBot import BaseBot
-from src.Bot.HighlightBot import HighlightBot
-from src.Bot.StoryBot import StoryBot
+from src.Bot.PostBot import PostBot
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
-from src.Selenium import InstagramSelenium
-from dotenv import load_dotenv
-import logging
 
-from src.model.HighlightsModel import HighlightsModel
-from src.model.StoriesModel import StoriesModel
-from src.model.UserHighlightModel import UserHighlightModel
+from dotenv import load_dotenv
+from src.model.ListOfPostModel import ListOfPost
 
 load_dotenv()
 username = os.getenv('username')
@@ -81,6 +74,14 @@ def main(bot: PostBot):
     bot.waitTillInstagramLogoDetected(10)
     logger.info(f"User profile opened successfully")
 
+    if bot.hasPost(5) is False:
+        logger.info("No post found")
+        bot.closeDriver()
+        return
+
+    posts: ListOfPost = bot.getPosts()
+    pdb.set_trace()
+
 
 if __name__ == "__main__":
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
@@ -92,8 +93,8 @@ if __name__ == "__main__":
     try:
         main(postBot)
     except InstagramException as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
