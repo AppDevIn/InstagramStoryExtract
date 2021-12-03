@@ -1,9 +1,8 @@
 import os
 import sys
-import time
 from datetime import datetime
-import requests
 import pdb
+import json
 
 from src.Bot.PostBot import PostBot
 from src.DateUtil import DateUtil
@@ -11,8 +10,7 @@ from src.Exception.CustomException import InstagramException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 
 from dotenv import load_dotenv
-from src.model.ListOfPostModel import ListOfPost
-from src.model.post import Post
+from src.model.ListOfPostModel import ListOfPost, ListOfPostEncoder
 
 load_dotenv()
 username = os.getenv('username')
@@ -97,7 +95,12 @@ def main(bot: PostBot):
     logger.info(f"Total number of post extracted are {posts.getSize()}")
 
     downloadFiles(posts)
-    bot.closePost()
+    with open("data.json", "w") as outfile:
+        pdb.set_trace()
+        data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
+        outfile.write(data)
+
+    # bot.closePost()
 
 
 if __name__ == "__main__":
@@ -110,8 +113,8 @@ if __name__ == "__main__":
     try:
         main(postBot)
     except InstagramException as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")

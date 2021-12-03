@@ -86,7 +86,7 @@ class PostBot(BaseBot):
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-        return Post(id, img, time, caption)
+        return Post(id, img, str(time), caption)
 
     def getPosts(self, callback, failedCallback) -> ListOfPost:
         self.find_elements_by_css_selector(".eLAPa")[0].click()
