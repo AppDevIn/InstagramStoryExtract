@@ -25,7 +25,7 @@ with open('config.yaml') as file:
         username = config["account"]["username"]
         password = config["account"]["password"]
         profileName = config["profile"]
-        data_path = config["post"]
+        data_path = config["story"]
         log_path = config["directory"] + data_path["logs"]
         json_filename = config["directory"] + data_path["json_filename"]
         data_path = config["directory"] + data_path["data"]

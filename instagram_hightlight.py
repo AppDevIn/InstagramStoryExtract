@@ -26,7 +26,7 @@ with open('config.yaml') as file:
         username = config["account"]["username"]
         password = config["account"]["password"]
         profileName = config["profile"]
-        data_path = config["post"]
+        data_path = config["highlight"]
         log_path = config["directory"] + data_path["logs"]
         data_path = config["directory"] + data_path["data"]
         zone = config["timezone"]
