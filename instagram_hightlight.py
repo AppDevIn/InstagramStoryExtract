@@ -10,7 +10,7 @@ from src.Bot.HighlightBot import HighlightBot
 from src.Bot.StoryBot import StoryBot
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException
-from src.FileUtil import FileUtil, writeVideo, writeImage
+from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 from src.Selenium import InstagramSelenium
 from dotenv import load_dotenv
 import logging
@@ -58,20 +58,6 @@ def getId(args) -> str:
     if index > (len(args) - 1):
         return ""
     return args[index]
-
-
-def setUpLogging(filename: str) -> logging.Logger:
-    # Logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    file_handler = logging.FileHandler(filename)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(file_handler)
-    logger.addHandler(stdout_handler)
-    return logger
 
 
 def downloadFiles(stories, highlight_name):

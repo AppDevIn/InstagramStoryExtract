@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException
-from src.FileUtil import FileUtil, writeVideo, writeImage
+from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
@@ -22,19 +22,6 @@ log_path = os.getenv('log_folder')
 data_path = os.getenv('data_folder')
 zone = os.getenv('timezone')
 
-
-def setUpLogging(filename: str) -> logging.Logger:
-    # Logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    file_handler = logging.FileHandler(filename)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(file_handler)
-    logger.addHandler(stdout_handler)
-    return logger
 
 
 def isHeadless(args):
