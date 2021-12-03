@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from src.Bot.BaseBot import BaseBot
-import src.model.constants as const
 from src.model.ListOfPostModel import ListOfPost
 from src.model.post import Media, Post
 

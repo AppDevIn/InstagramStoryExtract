@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 import pdb
 import json
+import yaml
 
 from src.Bot.PostBot import PostBot
 from src.DateUtil import DateUtil
@@ -13,12 +14,23 @@ from dotenv import load_dotenv
 from src.model.ListOfPostModel import ListOfPost, ListOfPostEncoder
 
 load_dotenv()
-username = os.getenv('username')
-password = os.getenv('password')
-profileName = os.getenv('default_account')
-log_path = os.getenv('folder')+os.getenv('post_log_path')
-data_path = os.getenv('folder')+os.getenv('post_path')
-zone = os.getenv('timezone')
+env = os.getenv('env')
+
+
+with open('config.yaml') as file:
+    try:
+        config = yaml.safe_load(file)
+        config = config[f"instagram-{env}"]
+        username = config["account"]["username"]
+        password = config["account"]["password"]
+        profileName = config["profile"]
+        data_path = config["post"]
+        log_path = config["directory"] + data_path["logs"]
+        json_filename = config["directory"] + data_path["json_filename"]
+        data_path = config["directory"] + data_path["data"]
+        zone = config["timezone"]
+    except yaml.YAMLError as exc:
+        print(exc)
 
 
 def isHeadless(args):
@@ -95,12 +107,11 @@ def main(bot: PostBot):
     logger.info(f"Total number of post extracted are {posts.getSize()}")
 
     downloadFiles(posts)
-    with open("data.json", "w") as outfile:
-        pdb.set_trace()
+    with open(json_filename, "w") as outfile:
         data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
         outfile.write(data)
 
-    # bot.closePost()
+    bot.closePost()
 
 
 if __name__ == "__main__":
@@ -112,9 +123,10 @@ if __name__ == "__main__":
 
     try:
         main(postBot)
+        postBot.closeDriver()
     except InstagramException as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
