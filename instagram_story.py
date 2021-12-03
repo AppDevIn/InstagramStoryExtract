@@ -77,7 +77,7 @@ def main(bot: StoryBot):
     logger.info(f"Attempting to download them")
 
     for story in stories.getAll():
-        file = FileUtil(f"{data_path}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
+        file = FileUtil(f"{data_path}/{profileName}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
         filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
         if story.video:
             writeVideo(story.media, filename, file.createFolder().getDir())
