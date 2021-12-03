@@ -1,11 +1,9 @@
 import os
 import sys
-import time
 from datetime import datetime
 import requests
-import pdb
+import yaml
 
-from src.Bot.BaseBot import BaseBot
 from src.Bot.HighlightBot import HighlightBot
 from src.Bot.StoryBot import StoryBot
 from src.DateUtil import DateUtil
@@ -13,19 +11,27 @@ from src.Exception.CustomException import InstagramException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 from src.Selenium import InstagramSelenium
 from dotenv import load_dotenv
-import logging
 
 from src.model.HighlightsModel import HighlightsModel
-from src.model.StoriesModel import StoriesModel
 from src.model.UserHighlightModel import UserHighlightModel
 
 load_dotenv()
-username = os.getenv('username')
-password = os.getenv('password')
-profileName = os.getenv('default_account')
-log_path = os.getenv('highlight_log_folder')
-data_path = os.getenv('highlight_data_folder')
-zone = os.getenv('timezone')
+env = os.getenv('env')
+
+
+with open('config.yaml') as file:
+    try:
+        config = yaml.safe_load(file)
+        config = config[f"instagram-{env}"]
+        username = config["account"]["username"]
+        password = config["account"]["password"]
+        profileName = config["profile"]
+        data_path = config["post"]
+        log_path = config["directory"] + data_path["logs"]
+        data_path = config["directory"] + data_path["data"]
+        zone = config["timezone"]
+    except yaml.YAMLError as exc:
+        print(exc)
 
 
 def downloadImage(link, name, path):

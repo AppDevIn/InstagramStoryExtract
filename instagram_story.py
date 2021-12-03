@@ -1,7 +1,7 @@
 import os
-import logging
-import pdb
 from datetime import datetime
+
+import yaml
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
@@ -15,13 +15,23 @@ from src.model.StoriesModel import StoriesModel
 from functools import partial
 
 load_dotenv()
-username = os.getenv('username')
-password = os.getenv('password')
-profileName = os.getenv('default_account')
-log_path = os.getenv('log_folder')
-data_path = os.getenv('data_folder')
-zone = os.getenv('timezone')
+env = os.getenv('env')
 
+
+with open('config.yaml') as file:
+    try:
+        config = yaml.safe_load(file)
+        config = config[f"instagram-{env}"]
+        username = config["account"]["username"]
+        password = config["account"]["password"]
+        profileName = config["profile"]
+        data_path = config["post"]
+        log_path = config["directory"] + data_path["logs"]
+        json_filename = config["directory"] + data_path["json_filename"]
+        data_path = config["directory"] + data_path["data"]
+        zone = config["timezone"]
+    except yaml.YAMLError as exc:
+        print(exc)
 
 
 def isHeadless(args):
