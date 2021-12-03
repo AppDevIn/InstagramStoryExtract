@@ -6,4 +6,4 @@ env/
 .env
 logs/
 __pycache__/
-.config.yaml
+config.yaml
