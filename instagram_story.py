@@ -27,7 +27,6 @@ with open('config.yaml') as file:
         profileName = config["profile"]
         data_path = config["story"]
         log_path = config["directory"] + data_path["logs"]
-        json_filename = config["directory"] + data_path["json_filename"]
         data_path = config["directory"] + data_path["data"]
         zone = config["timezone"]
     except yaml.YAMLError as exc:
