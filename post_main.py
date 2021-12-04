@@ -50,11 +50,11 @@ def downloadFiles(posts, profile_name):
                 else:
                     writeImage(m.media, index, file.createFolder().getDir())
                 index += 1
-            except Exception:
-                logger.error(f"Failed to download image from post id: {post.id} index {index}")
-        logger.info(f"Downloaded id {post.id} {index} times")
+            except Exception as e:
+                logger.error(f"Failed to download image from post id: {post.id} index {index} due to {e}")
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
+        logger.info(f"Downloaded id {post.id} {index} times out of {len(post.media)}")
         count += 1
 
     logger.info(f"{count}/{posts.getSize()} have been downloaded")
@@ -108,16 +108,15 @@ def run(attempt=0):
     postBot = PostBot(isHeadless(sys.argv))
     try:
         main(postBot)
-
-        # postBot.closeDriver()
+        postBot.closeDriver()
     except InstagramException as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(e.message)
-        # if attempt < 3:
-        #     attempt += 1
-        #     run(attempt)
+        if attempt < 3:
+            attempt += 1
+            run(attempt)
     except Exception as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
 
 
