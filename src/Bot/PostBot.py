@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from src.Bot.BaseBot import BaseBot
+from src.Exception.CustomException import InstagramException
 from src.model.ListOfPostModel import ListOfPost
 from src.model.post import Media, Post, Comment
 
@@ -69,12 +70,12 @@ class PostBot(BaseBot):
     def nextPost(self):
         self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
 
-    def getLikes(self, video=False) -> str:
-        if video:
-            return self.find_element_by_css_selector("section.EDfFK.ygqzn > div > span > span").get_attribute(
-                "innerHTML")
-        else:
-            return self.find_element_by_css_selector(".zV_Nj > span:nth-child(1)").get_attribute("innerHTML")
+    def getLikes(self) -> str:
+        try:
+            return self.find_element_by_css_selector("section.EDfFK.ygqzn > div").get_attribute(
+                    "innerText")
+        except Exception:
+            return None
 
     def hasMoreCommentsButton(self) -> bool:
         self.implicitly_wait(1)
@@ -111,17 +112,16 @@ class PostBot(BaseBot):
         if self.hasImg():
             img = list(
                 map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
-            likes = int(self.getLikes())
         if self.hasVideo():
             video = list(
                 map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
-            likes = int(self.getLikes(True))
         img += video
         if self.hasCaption():
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
         comments = self.getComments()
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
+        likes = self.getLikes()
 
         return Post(id, img, str(time), caption, likes, comments)
 
@@ -137,7 +137,7 @@ class PostBot(BaseBot):
                 if self.hasNextButton(2) is False:
                     break
                 self.nextPost()
-            except Exception as e:
+            except InstagramException as e:
                 failedCallback(id, e)
                 self.nextPost()
 

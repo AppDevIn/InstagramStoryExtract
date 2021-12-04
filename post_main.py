@@ -43,11 +43,15 @@ def downloadFiles(posts, profile_name):
         file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
         index = 0
         for m in post.media:
-            if m.video:
-                writeVideo(m.media, index, file.createFolder().getDir())
-            else:
-                writeImage(m.media, index, file.createFolder().getDir())
-            index += 1
+            try:
+                if m.video:
+                    writeVideo(m.media, index, file.createFolder().getDir())
+                else:
+                    writeImage(m.media, index, file.createFolder().getDir())
+                index += 1
+            except Exception:
+                logger.error(f"Failed to download image from post id: {post.id} index {index}")
+
 
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
@@ -111,8 +115,8 @@ if __name__ == "__main__":
     config = config[f"instagram-{env}"]
     data_path = config["post"]
     log_path = config["directory"] + data_path["logs"]
-    data_path = config["directory"] + data_path["data"]
     json_filename = config["directory"] + data_path["json_filename"]
+    data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
@@ -126,10 +130,10 @@ if __name__ == "__main__":
             password = config[f"account-{user}"]["password"]
             profileList = config[f"account-{user}"]["profile"]
             main(postBot)
-        postBot.closeDriver()
+        # postBot.closeDriver()
     except InstagramException as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
