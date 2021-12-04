@@ -88,7 +88,6 @@ def main(bot: StoryBot):
             logger.error(e.message)
 
 
-
 def subTryAgain(window):
     window.quit()
     run()
