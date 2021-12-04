@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from src.Bot.BaseBot import BaseBot
 from src.model.ListOfPostModel import ListOfPost
-from src.model.post import Media, Post
+from src.model.post import Media, Post, Comment
 
 
 class PostBot(BaseBot):
@@ -70,6 +70,36 @@ class PostBot(BaseBot):
     def nextPost(self):
         self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
 
+    def getLikes(self) -> str:
+        return self.find_element_by_css_selector(".zV_Nj > span:nth-child(1)").get_attribute("innerHTML")
+
+    def hasMoreCommentsButton(self) -> bool:
+        self.implicitly_wait(1)
+        try:
+            self.find_element_by_css_selector("div.qF0y9.NUiEW button.wpO6b")
+            return True
+        except Exception:
+            return False
+        finally:
+            self.implicitly_wait(5)
+
+    def clickOnMoreCommentsButton(self):
+        self.find_element_by_css_selector("div.qF0y9.NUiEW button.wpO6b").click()
+
+    def getComments(self) -> [Comment]:
+        while self.hasMoreCommentsButton():
+            self.clickOnMoreCommentsButton()
+
+        comments = []
+        comments_element = self.find_elements_by_css_selector(".C4VMK")
+        for comment_element in comments_element:
+            user = comment_element.find_element_by_css_selector("span a").get_attribute("innerHTML")
+            comment = comment_element.find_element_by_css_selector("span:nth-child(2)").get_attribute("innerHTML")
+            time = comment_element.find_element_by_css_selector("time").get_attribute("datetime")[:-5]
+            time = str(datetime.strptime(time, "%Y-%m-%dT%H:%M:%S"))
+            comments.append(Comment(user, comment, time))
+        return comments
+
     def getPost(self, id) -> Post:
         video = []
         img = []
@@ -84,8 +114,11 @@ class PostBot(BaseBot):
         if self.hasCaption():
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
+        likes = int(self.getLikes())
+        comments = self.getComments()
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-        return Post(id, img, str(time), caption)
+
+        return Post(id, img, str(time), caption, likes, comments)
 
     def getPosts(self, callback, failedCallback) -> ListOfPost:
         self.find_elements_by_css_selector(".eLAPa")[0].click()
