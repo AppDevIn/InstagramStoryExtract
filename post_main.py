@@ -111,8 +111,6 @@ def main(bot: PostBot):
         data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
         outfile.write(data)
 
-    bot.closePost()
-
 
 if __name__ == "__main__":
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
