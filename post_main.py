@@ -20,9 +20,10 @@ with open('config.yaml') as file:
     try:
         config = yaml.safe_load(file)
         config = config[f"instagram-{env}"]
-        username = config["account"]["username"]
-        password = config["account"]["password"]
-        profileName = config["profile"]
+        user = config["accounts"][0]
+        username = config[f"account-{user}"]["username"]
+        password = config[f"account-{user}"]["password"]
+        profileName = config[f"account-{user}"]["profile"][0]
         data_path = config["post"]
         log_path = config["directory"] + data_path["logs"]
         json_filename = config["directory"] + data_path["json_filename"]
