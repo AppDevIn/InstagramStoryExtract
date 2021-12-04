@@ -17,14 +17,13 @@ from functools import partial
 load_dotenv()
 env = os.getenv('env')
 
-
 with open('config.yaml') as file:
     try:
         config = yaml.safe_load(file)
         config = config[f"instagram-{env}"]
         username = config["account"]["username"]
         password = config["account"]["password"]
-        profileName = config["profile"]
+        profileList = config["profile"]
         data_path = config["story"]
         log_path = config["directory"] + data_path["logs"]
         data_path = config["directory"] + data_path["data"]
@@ -41,23 +40,23 @@ def isGUI():
     return "--gui" in sys.argv
 
 
-def main(bot: StoryBot):
-    logger.info("Opening the landing page")
-    bot.landOnPage()
-    bot.waitTillLoginPageLoaded(10)
-    logger.info("The page has loaded")
-    bot.loginIntoInstagram(username, password)
-    logger.info("Attempting with the credentials given in .env")
-    logger.info(f"Login with username {username}")
-    bot.waitTillInstagramLogoDetected(5)
-    logger.info("Login was successful")
-    logger.info(f"Attempting to open the user story of {profileName}")
-    bot.landOnUserStory(profileName)
-    bot.clickOnConfirmationToView()
-    logger.info(f"Able to view the user story")
+def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
+    for story in stories.getAll():
+        file = FileUtil(f"{data_path}/{profile_name}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
+        filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
+        if story.video:
+            writeVideo(story.media, filename, file.createFolder().getDir())
+        else:
+            writeImage(story.media, filename, file.createFolder().getDir())
+        logger.info(f"File is saved into {file.getDir()}")
 
-    stories = StoriesModel()
+    bot.landProfilePage(profile_name)
+    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{datetime.now().strftime(DateUtil.TIME_FORMAT)}.png"
+    logger.info(f"Saving screenshot in {screenshot_path}")
+    bot.takeScreenshot(".zw3Ow", screenshot_path)
 
+
+def extractStories(bot: StoryBot, stories: StoriesModel) -> StoriesModel:
     logger.info("Starting to extract stories")
     while bot.stillInStory():
         bot.implicitly_wait(0)
@@ -72,23 +71,33 @@ def main(bot: StoryBot):
         bot.next()
     logger.info("End stories extract")
     bot.implicitly_wait(5)
+    return stories
 
-    logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
-    logger.info(f"Attempting to download them")
 
-    for story in stories.getAll():
-        file = FileUtil(f"{data_path}/{profileName}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
-        filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
-        if story.video:
-            writeVideo(story.media, filename, file.createFolder().getDir())
-        else:
-            writeImage(story.media, filename, file.createFolder().getDir())
-        logger.info(f"File is saved into {file.getDir()}")
+def main(bot: StoryBot):
+    logger.info("Opening the landing page")
+    bot.landOnPage()
+    bot.waitTillLoginPageLoaded(10)
+    logger.info("The page has loaded")
+    bot.loginIntoInstagram(username, password)
+    logger.info("Attempting with the credentials given in .env")
+    logger.info(f"Login with username {username}")
+    bot.waitTillInstagramLogoDetected(5)
+    logger.info("Login was successful")
 
-    bot.landProfilePage(profileName)
-    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{datetime.now().strftime(DateUtil.TIME_FORMAT)}.png"
-    logger.info(f"Saving screenshot in {screenshot_path}")
-    bot.takeScreenshot(".zw3Ow", screenshot_path)
+    for profileName in profileList:
+        logger.info(f"Attempting to open the user story of {profileName}")
+        bot.landOnUserStory(profileName)
+        bot.clickOnConfirmationToView()
+        logger.info(f"Able to view the user story")
+
+        stories = StoriesModel()
+        stories = extractStories()
+
+        logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
+        logger.info(f"Attempting to download them")
+
+        downloadFiles(bot, profileName)
 
 
 def subTryAgain(window):
