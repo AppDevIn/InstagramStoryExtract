@@ -92,12 +92,12 @@ def main(bot: StoryBot):
         logger.info(f"Able to view the user story")
 
         stories = StoriesModel()
-        stories = extractStories()
+        stories = extractStories(bot, stories)
 
         logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
         logger.info(f"Attempting to download them")
 
-        downloadFiles(bot, profileName)
+        downloadFiles(bot, stories, profileName)
 
 
 def subTryAgain(window):
