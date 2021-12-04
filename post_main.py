@@ -16,23 +16,6 @@ load_dotenv()
 env = os.getenv('env')
 
 
-with open('config.yaml') as file:
-    try:
-        config = yaml.safe_load(file)
-        config = config[f"instagram-{env}"]
-        user = config["accounts"][0]
-        username = config[f"account-{user}"]["username"]
-        password = config[f"account-{user}"]["password"]
-        profileName = config[f"account-{user}"]["profile"][0]
-        data_path = config["post"]
-        log_path = config["directory"] + data_path["logs"]
-        json_filename = config["directory"] + data_path["json_filename"]
-        data_path = config["directory"] + data_path["data"]
-        zone = config["timezone"]
-    except yaml.YAMLError as exc:
-        print(exc)
-
-
 def isHeadless(args):
     return "--headless" in args
 
@@ -52,12 +35,12 @@ def getId(args) -> str:
     return args[index]
 
 
-def downloadFiles(posts):
-    logger.info(f"Attempting to download {posts.getSize()} posts from {profileName}")
+def downloadFiles(posts, profile_name):
+    logger.info(f"Attempting to download {posts.getSize()} posts from {profile_name}")
 
     count = 0
     for post in posts.getAll()[::-1]:
-        file = FileUtil(f"{data_path}/{profileName}/{post.id}/")
+        file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
         index = 0
         for m in post.media:
             if m.video:
@@ -92,27 +75,45 @@ def main(bot: PostBot):
     logger.info(f"Login with username {username}")
     bot.waitTillInstagramLogoDetected(10)
     logger.info("Login was successful")
-    logger.info(f"Attempting to open the user profile of {profileName}")
-    bot.landProfilePage(profileName)
-    bot.waitTillInstagramLogoDetected(10)
-    logger.info(f"User profile opened successfully")
 
-    if bot.hasPost(5) is False:
-        logger.info("No post found")
-        bot.closeDriver()
-        return
+    for profileName in profileList:
+        try:
+            logger.info(f"Attempting to open the user profile of {profileName}")
+            bot.landProfilePage(profileName)
+            bot.waitTillInstagramLogoDetected(10)
+            logger.info(f"User profile opened successfully")
 
-    logger.info("Extracting posts from user profile")
-    posts: ListOfPost = bot.getPosts(everySuccessfulPost, failedCallback=failedExtract)
-    logger.info(f"Total number of post extracted are {posts.getSize()}")
+            if bot.hasPost(5) is False:
+                logger.info("No post found")
+                bot.closeDriver()
+                return
 
-    downloadFiles(posts)
-    with open(json_filename, "w") as outfile:
-        data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
-        outfile.write(data)
+            logger.info("Extracting posts from user profile")
+            posts: ListOfPost = bot.getPosts(everySuccessfulPost, failedCallback=failedExtract)
+            logger.info(f"Total number of post extracted are {posts.getSize()}")
+
+            downloadFiles(posts, profileName)
+            with open(f"{json_filename}_{profileName}.json", "w") as outfile:
+                data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
+                outfile.write(data)
+        except InstagramException as e:
+            logger.error(e.message)
 
 
 if __name__ == "__main__":
+    config = {}
+    with open('config.yaml') as file:
+        try:
+            config = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    config = config[f"instagram-{env}"]
+    data_path = config["post"]
+    log_path = config["directory"] + data_path["logs"]
+    data_path = config["directory"] + data_path["data"]
+    json_filename = config["directory"] + data_path["json_filename"]
+    zone = config["timezone"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
@@ -120,7 +121,11 @@ if __name__ == "__main__":
     postBot = PostBot(isHeadless(sys.argv))
 
     try:
-        main(postBot)
+        for user in config["accounts"]:
+            username = config[f"account-{user}"]["username"]
+            password = config[f"account-{user}"]["password"]
+            profileList = config[f"account-{user}"]["profile"]
+            main(postBot)
         postBot.closeDriver()
     except InstagramException as e:
         postBot.closeDriver()
