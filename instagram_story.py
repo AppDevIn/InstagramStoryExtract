@@ -17,20 +17,6 @@ from functools import partial
 load_dotenv()
 env = os.getenv('env')
 
-with open('config.yaml') as file:
-    try:
-        config = yaml.safe_load(file)
-        config = config[f"instagram-{env}"]
-        username = config["account"]["username"]
-        password = config["account"]["password"]
-        profileList = config["profile"]
-        data_path = config["story"]
-        log_path = config["directory"] + data_path["logs"]
-        data_path = config["directory"] + data_path["data"]
-        zone = config["timezone"]
-    except yaml.YAMLError as exc:
-        print(exc)
-
 
 def isHeadless(args):
     return "--headless" in sys.argv
@@ -86,18 +72,21 @@ def main(bot: StoryBot):
     logger.info("Login was successful")
 
     for profileName in profileList:
-        logger.info(f"Attempting to open the user story of {profileName}")
-        bot.landOnUserStory(profileName)
-        bot.clickOnConfirmationToView()
-        logger.info(f"Able to view the user story")
+        try:
+            logger.info(f"Attempting to open the user story of {profileName}")
+            bot.landOnUserStory(profileName)
+            bot.clickOnConfirmationToView()
+            logger.info(f"Able to view the user story")
 
-        stories = StoriesModel()
-        stories = extractStories(bot, stories)
+            stories = StoriesModel()
+            stories = extractStories(bot, stories)
 
-        logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
-        logger.info(f"Attempting to download them")
+            logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
+            logger.info(f"Attempting to download them")
+            downloadFiles(bot, stories, profileName)
+        except InstagramException as e:
+            logger.error(e.message)
 
-        downloadFiles(bot, stories, profileName)
 
 
 def subTryAgain(window):
@@ -128,8 +117,25 @@ def run():
 
 
 if __name__ == "__main__":
+    config = {}
+    with open('config.yaml') as file:
+        try:
+            config = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    config = config[f"instagram-{env}"]
+    data_path = config["story"]
+    log_path = config["directory"] + data_path["logs"]
+    data_path = config["directory"] + data_path["data"]
+    zone = config["timezone"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    run()
+
+    for user in config["accounts"]:
+        username = config[f"account-{user}"]["username"]
+        password = config[f"account-{user}"]["password"]
+        profileList = config[f"account-{user}"]["profile"]
+        run()
