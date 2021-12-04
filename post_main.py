@@ -57,7 +57,7 @@ def downloadFiles(posts, profile_name):
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
         logger.info(f"Downloaded id {post.id} {index} times out of {len(post.media)}")
         count += 1
-    if len(failed) is 0:
+    if len(failed) is not 0:
         logger.error(f"Failed to completely download this ids {failed}")
 
     logger.info(f"{count}/{posts.getSize()} have been downloaded")
@@ -78,7 +78,7 @@ def main(bot: PostBot):
     bot.waitTillLoginPageLoaded(10)
     logger.info("The page has loaded")
     bot.loginIntoInstagram(username, password)
-    logger.info("Attempting with the credentials given in .env")
+    logger.info("Attempting with the credentials given in config.yaml")
     logger.info(f"Login with username {username}")
     bot.waitTillInstagramLogoDetected(10)
     logger.info("Login was successful")
@@ -100,7 +100,7 @@ def main(bot: PostBot):
             logger.info(f"Total number of post extracted are {posts.getSize()}")
 
             downloadFiles(posts, profileName)
-            with open(f"{json_filename}_{profileName}.json", "w") as outfile:
+            with open(f"{data_path}/{profileName}/{json_filename}", "w") as outfile:
                 data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
                 outfile.write(data)
         except InstagramException as e:
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     config = config[f"instagram-{env}"]
     data_path = config["post"]
     log_path = config["directory"] + data_path["logs"]
-    json_filename = config["directory"] + data_path["json_filename"]
+    json_filename = data_path["json_filename"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"

@@ -161,7 +161,7 @@ def main(bot: HighlightBot):
     bot.waitTillLoginPageLoaded(10)
     logger.info("The page has loaded")
     bot.loginIntoInstagram(username, password)
-    logger.info("Attempting with the credentials given in .env")
+    logger.info("Attempting with the credentials given in config.yaml")
     logger.info(f"Login with username {username}")
     bot.waitTillInstagramLogoDetected(10)
     logger.info("Login was successful")

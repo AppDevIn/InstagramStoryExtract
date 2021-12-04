@@ -145,9 +145,12 @@ class PostBot(BaseBot):
         while True:
             id = self.current_url.split("/p/")[-1][:-1]
             try:
-                post = self.getPost(id)
-                posts.add(post)
-                callback(posts)
+                try:
+                    post = self.getPost(id)
+                    posts.add(post)
+                    callback(posts)
+                except Exception as e:
+                    failedCallback(id, e)
                 if self.hasNextButton(2) is False:
                     break
                 self.nextPost()
