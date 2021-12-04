@@ -38,7 +38,7 @@ def getId(args) -> str:
 
 def downloadFiles(posts, profile_name):
     logger.info(f"Attempting to download {posts.getSize()} posts from {profile_name}")
-
+    failed = []
     count = 0
     for post in posts.getAll():
         file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
@@ -51,11 +51,14 @@ def downloadFiles(posts, profile_name):
                     writeImage(m.media, index, file.createFolder().getDir())
                 index += 1
             except Exception as e:
+                failed.append(post.id)
                 logger.error(f"Failed to download image from post id: {post.id} index {index} due to {e}")
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
         logger.info(f"Downloaded id {post.id} {index} times out of {len(post.media)}")
         count += 1
+    if len(failed) is 0:
+        logger.error(f"Failed to completely download this ids {failed}")
 
     logger.info(f"{count}/{posts.getSize()} have been downloaded")
 
