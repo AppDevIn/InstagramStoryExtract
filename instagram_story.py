@@ -49,7 +49,7 @@ def main(bot: StoryBot):
     bot.loginIntoInstagram(username, password)
     logger.info("Attempting with the credentials given in .env")
     logger.info(f"Login with username {username}")
-    bot.waitTillInstagramLogoDetected(10)
+    bot.waitTillInstagramLogoDetected(5)
     logger.info("Login was successful")
     logger.info(f"Attempting to open the user story of {profileName}")
     bot.landOnUserStory(profileName)
@@ -85,7 +85,10 @@ def main(bot: StoryBot):
             writeImage(story.media, filename, file.createFolder().getDir())
         logger.info(f"File is saved into {file.getDir()}")
 
-    bot.closeDriver()
+    bot.landProfilePage(profileName)
+    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{datetime.now().strftime(DateUtil.TIME_FORMAT)}.png"
+    logger.info(f"Saving screenshot in {screenshot_path}")
+    bot.takeScreenshot(".zw3Ow", screenshot_path)
 
 
 def subTryAgain(window):
@@ -104,6 +107,7 @@ def run():
     instagram = StoryBot(isHeadless(sys.argv))
     try:
         main(instagram)
+        instagram.closeDriver()
     except InstagramException as e:
         instagram.closeDriver()
         logger.error(e.message)
@@ -111,6 +115,7 @@ def run():
             tryAgain(e.message)
     except Exception as e:
         logger.error(str(e))
+        instagram.closeDriver()
 
 
 if __name__ == "__main__":

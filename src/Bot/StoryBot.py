@@ -1,6 +1,8 @@
+import time
 from datetime import datetime
 
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 
 from src.Bot.BaseBot import BaseBot
@@ -74,3 +76,12 @@ class StoryBot(BaseBot):
             return True
         except Exception as e:
             return False
+
+    def takeScreenshot(self, css: str, path):
+        time.sleep(1)
+        element = self.find_element_by_css_selector(css)
+        element.screenshot(path)
+
+
+
+
