@@ -52,7 +52,6 @@ def downloadFiles(posts, profile_name):
             except Exception:
                 logger.error(f"Failed to download image from post id: {post.id} index {index}")
 
-
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
         count += 1
@@ -104,6 +103,22 @@ def main(bot: PostBot):
             logger.error(e.message)
 
 
+def run(attempt=0):
+    postBot = PostBot(isHeadless(sys.argv))
+    try:
+        main(postBot)
+        postBot.closeDriver()
+    except InstagramException as e:
+        postBot.closeDriver()
+        logger.error(e.message)
+        if attempt < 3:
+            attempt += 1
+            run(attempt)
+    except Exception as e:
+        postBot.closeDriver()
+        logger.error(f"Unexpected error: {e}")
+
+
 if __name__ == "__main__":
     config = {}
     with open('config.yaml') as file:
@@ -122,18 +137,9 @@ if __name__ == "__main__":
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
     logger = setUpLogging(logFile.createFolder().getPath())
-    postBot = PostBot(isHeadless(sys.argv))
 
-    try:
-        for user in config["accounts"]:
-            username = config[f"account-{user}"]["username"]
-            password = config[f"account-{user}"]["password"]
-            profileList = config[f"account-{user}"]["profile"]
-            main(postBot)
-        # postBot.closeDriver()
-    except InstagramException as e:
-        # postBot.closeDriver()
-        logger.error(e.message)
-    except Exception as e:
-        # postBot.closeDriver()
-        logger.error(f"Unexpected error: {e}")
+    for user in config["accounts"]:
+        username = config[f"account-{user}"]["username"]
+        password = config[f"account-{user}"]["password"]
+        profileList = config[f"account-{user}"]["profile"]
+        run()
