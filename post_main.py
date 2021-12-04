@@ -121,10 +121,10 @@ if __name__ == "__main__":
 
     try:
         main(postBot)
-        # postBot.closeDriver()
+        postBot.closeDriver()
     except InstagramException as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        # postBot.closeDriver()
+        postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")

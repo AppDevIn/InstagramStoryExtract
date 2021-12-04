@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import pdb
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -70,8 +69,12 @@ class PostBot(BaseBot):
     def nextPost(self):
         self.find_element_by_css_selector(".l8mY4 .wpO6b").click()
 
-    def getLikes(self) -> str:
-        return self.find_element_by_css_selector(".zV_Nj > span:nth-child(1)").get_attribute("innerHTML")
+    def getLikes(self, video=False) -> str:
+        if video:
+            return self.find_element_by_css_selector("section.EDfFK.ygqzn > div > span > span").get_attribute(
+                "innerHTML")
+        else:
+            return self.find_element_by_css_selector(".zV_Nj > span:nth-child(1)").get_attribute("innerHTML")
 
     def hasMoreCommentsButton(self) -> bool:
         self.implicitly_wait(1)
@@ -104,17 +107,19 @@ class PostBot(BaseBot):
         video = []
         img = []
         caption = None
+        likes = None
         if self.hasImg():
             img = list(
                 map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
+            likes = int(self.getLikes())
         if self.hasVideo():
             video = list(
                 map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
+            likes = int(self.getLikes(True))
         img += video
         if self.hasCaption():
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
-        likes = int(self.getLikes())
         comments = self.getComments()
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
 
@@ -133,7 +138,6 @@ class PostBot(BaseBot):
                     break
                 self.nextPost()
             except Exception as e:
-                pdb.set_trace()
                 failedCallback(id, e)
                 self.nextPost()
 
