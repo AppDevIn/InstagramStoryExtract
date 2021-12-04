@@ -9,6 +9,8 @@ from src.Exception.CustomException import InstagramException
 from src.model.ListOfPostModel import ListOfPost
 from src.model.post import Media, Post, Comment
 
+import pdb
+
 
 class PostBot(BaseBot):
     def __init__(self, headless):
@@ -64,6 +66,16 @@ class PostBot(BaseBot):
         finally:
             self.implicitly_wait(5)
 
+    def hasNextMediaButton(self):
+        self.implicitly_wait(1)
+        try:
+            self.find_element_by_css_selector("div.qF0y9.Igw0E > div > button._6CZji")
+            return True
+        except Exception:
+            return False
+        finally:
+            self.implicitly_wait(5)
+
     def closePost(self):
         self.find_element_by_css_selector("div._2dDPU > div.qF0y9 > button").click()
 
@@ -73,7 +85,7 @@ class PostBot(BaseBot):
     def getLikes(self) -> str:
         try:
             return self.find_element_by_css_selector("section.EDfFK.ygqzn > div").get_attribute(
-                    "innerText")
+                "innerText")
         except Exception:
             return None
 
@@ -105,25 +117,27 @@ class PostBot(BaseBot):
         return comments
 
     def getPost(self, id) -> Post:
-        video = []
-        img = []
         caption = None
-        likes = None
-        if self.hasImg():
-            img = list(
-                map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD")))
-        if self.hasVideo():
-            video = list(
-                map(lambda x: Media(x.get_attribute("src"), True), self.find_elements_by_css_selector(".qF0y9 .tWeCl")))
-        img += video
         if self.hasCaption():
             caption = self.find_element_by_css_selector(".ZyFrc .C4VMK > span").get_attribute("innerHTML")
         time = self.find_element_by_css_selector("._1o9PC").get_attribute("datetime")[:-5]
         comments = self.getComments()
         time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
         likes = self.getLikes()
+        post = Post(id, [], str(time), caption, likes, comments)
 
-        return Post(id, img, str(time), caption, likes, comments)
+        while True:
+            if self.hasImg():
+                post.addMedia(list(
+                    map(lambda x: Media(x.get_attribute("src")), self.find_elements_by_css_selector(".qF0y9 .FFVAD"))))
+            else:
+                post.addMedia(
+                    list(map(lambda x: Media(x.get_attribute("src"), True),
+                        self.find_elements_by_css_selector(".qF0y9 .tWeCl"))))
+            if self.hasNextMediaButton():
+                self.find_element_by_css_selector("div.qF0y9.Igw0E > div > button._6CZji").click()
+            else: break
+        return post
 
     def getPosts(self, callback, failedCallback) -> ListOfPost:
         self.find_elements_by_css_selector(".eLAPa")[0].click()

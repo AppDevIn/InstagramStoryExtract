@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from datetime import datetime
 import json
 import yaml
@@ -39,7 +40,7 @@ def downloadFiles(posts, profile_name):
     logger.info(f"Attempting to download {posts.getSize()} posts from {profile_name}")
 
     count = 0
-    for post in posts.getAll()[::-1]:
+    for post in posts.getAll():
         file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
         index = 0
         for m in post.media:
@@ -51,7 +52,7 @@ def downloadFiles(posts, profile_name):
                 index += 1
             except Exception:
                 logger.error(f"Failed to download image from post id: {post.id} index {index}")
-
+        logger.info(f"Downloaded id {post.id} {index} times")
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
         count += 1
@@ -107,15 +108,16 @@ def run(attempt=0):
     postBot = PostBot(isHeadless(sys.argv))
     try:
         main(postBot)
-        postBot.closeDriver()
+
+        # postBot.closeDriver()
     except InstagramException as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(e.message)
-        if attempt < 3:
-            attempt += 1
-            run(attempt)
+        # if attempt < 3:
+        #     attempt += 1
+        #     run(attempt)
     except Exception as e:
-        postBot.closeDriver()
+        # postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
 
 
