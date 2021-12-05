@@ -15,6 +15,8 @@ from src.GUI import GUI
 from src.model.StoriesModel import StoriesModel
 from functools import partial
 
+from telegrambot.bot import TeleBot
+
 load_dotenv()
 env = os.getenv('env')
 
@@ -35,6 +37,10 @@ def hasAttempt():
 
 def hasRetry():
     return "-r" in sys.argv
+
+
+def send_telemessage(message):
+    telebot.send_message(chatId, message)
 
 
 def getAttempt(args=sys.argv) -> str:
@@ -106,8 +112,13 @@ def main(bot: StoryBot):
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")
             downloadFiles(bot, stories, profileName)
+            send_telemessage(f"The number of image/video needed to be downloaded are {stories.getSize()}")
         except InstagramException as e:
             logger.error(e.message)
+            send_telemessage(f"Sir, we experience unknown error {e.message}")
+        except NoUserStoryException as e:
+            logger.info(e.message)
+            send_telemessage(f"Sir, {profileName} has no story today")
 
 
 def subTryAgain(window):
@@ -135,27 +146,30 @@ def run(attempt=0):
         elif (hasRetry() or hasAttempt()) and attempt < retry_attempt:
             attempt += 1
             run(attempt)
-    except NoUserStoryException as e:
-        instagram.closeDriver()
-        logger.error(e.message)
     except Exception as e:
         logger.error(str(e))
         instagram.closeDriver()
 
 
 if __name__ == "__main__":
-    config = {}
+    c = {}
     with open('config.yaml') as file:
         try:
-            config = yaml.safe_load(file)
+            c = yaml.safe_load(file)
         except yaml.YAMLError as exc:
             print(exc)
 
-    config = config[f"instagram-{env}"]
+    config = c[f"instagram-{env}"]
     data_path = config["story"]
     log_path = config["directory"] + data_path["logs"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
+    TOKEN = c["telegram-api-key"]
+    chatId = c["chat-id"]
+    telebot = TeleBot(TOKEN)
+    telebot.send_message(chatId,
+                         f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT)}, I awake an "
+                         f"starting scrapping")
     if hasAttempt():
         retry_attempt = int(getAttempt())
     else:
