@@ -1,19 +1,17 @@
 import os
 import sys
-import time
 from datetime import datetime
 import json
 import yaml
 
 from src.Bot.DetailsBot import DetailsBot
-from src.Bot.PostBot import PostBot
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 
 from dotenv import load_dotenv
 from src.model.ListOfPostModel import ListOfPost, ListOfPostEncoder
-from src.model.UserModel import User
+
 
 load_dotenv()
 env = os.getenv('env')
@@ -21,17 +19,6 @@ env = os.getenv('env')
 
 def isHeadless(args):
     return "--headless" in args
-
-
-def isId(args):
-    return "--id" in args
-
-
-def getId(args) -> str:
-    index = args.index("--id") + 1
-    if index > (len(args) - 1):
-        return ""
-    return args[index]
 
 
 def main(bot: DetailsBot):

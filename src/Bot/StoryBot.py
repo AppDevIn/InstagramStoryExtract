@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from src.Bot.BaseBot import BaseBot
 import src.model.constants as const
-from src.Exception.CustomException import InstagramException
+from src.Exception.CustomException import InstagramException, NoUserStoryException
 
 
 class StoryBot(BaseBot):
@@ -27,7 +27,7 @@ class StoryBot(BaseBot):
             self.find_element_by_xpath(
                 "/html/body/div[1]/section/div[1]/div/section/div/div[1]/div/div/div/div[3]/button").click()
         except Exception as e:
-            raise InstagramException("No existing user story", e)
+            raise NoUserStoryException("No existing user story", e)
 
     def stillInStory(self) -> bool:
         try:
