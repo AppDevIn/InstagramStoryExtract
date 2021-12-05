@@ -3,6 +3,7 @@ import requests
 import json
 import configparser as cfg
 from telegrambot.Models.update import Update, UpdateType
+import telegram
 
 
 class TeleBot:
@@ -65,3 +66,10 @@ class TeleBot:
         parser = cfg.ConfigParser()
         parser.read(config)
         return parser.get("creds", "token")
+
+    def send_photo(self, chat_id, file):
+        up = {'photo': ("i.png", open(file, 'rb'), "multipart/form-data")}
+        url = self.base + f"sendPhoto"
+        requests.post(url, files=up, data={
+            "chat_id": chat_id,
+        })
