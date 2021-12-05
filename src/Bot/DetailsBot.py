@@ -64,10 +64,14 @@ class DetailsBot(BaseBot):
         print(int(following.split()[0]))
         while len(elements) < int(following.split()[0]):
             self.execute_script("arguments[0].scrollBy(0,10000000);", target)
+
             elements = elements + self.find_elements_by_css_selector(".isgrP ul li")
-            # for e in elements[previousCount::]:
-            #     self.user.addFollowing(e.get_attribute("innerText"))
-            # previousCount = len(self.user.following_list)
+            for e in elements:
+                try:
+                    self.user.addFollowing(e.get_attribute("innerText"))
+                except Exception as e:
+                    continue
+
             elements = set(elements)
             elements = list(elements)
             print(len(elements))
