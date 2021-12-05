@@ -1,4 +1,5 @@
 import os
+import pdb
 import sys
 import time
 from datetime import datetime
@@ -7,14 +8,17 @@ import yaml
 
 from src.Bot.PostBot import PostBot
 from src.DateUtil import DateUtil
-from src.Exception.CustomException import InstagramException
+from src.Exception.CustomException import InstagramException, MissingArgumentException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 
 from dotenv import load_dotenv
 from src.model.ListOfPostModel import ListOfPost, ListOfPostEncoder
+from src.model.post import Post
 
 load_dotenv()
 env = os.getenv('env')
+
+list_of_arguments = ["--id", "--account", "--profile"]
 
 
 def isHeadless(args):
@@ -22,18 +26,58 @@ def isHeadless(args):
 
 
 def isId(args):
-    return "--id" in args
-
-
-def isAll(args):
-    return "--all" in args
+    return "--id" in args and "--account" in args and "--profile" in args
 
 
 def getId(args) -> str:
     index = args.index("--id") + 1
     if index > (len(args) - 1):
-        return ""
-    return args[index]
+        raise MissingArgumentException("--id value is not added")
+
+    if args[index] not in list_of_arguments:
+        return args[index]
+    else:
+        MissingArgumentException("--id value is not added")
+
+
+def getAccount(args) -> str:
+    index = args.index("--account") + 1
+    if index > (len(args) - 1):
+        raise MissingArgumentException("--account value is not added")
+    if args[index] not in list_of_arguments:
+        return args[index]
+    else:
+        MissingArgumentException("--id value is not added")
+
+
+def getProfile(args) -> str:
+    index = args.index("--profile") + 1
+    if index > (len(args) - 1):
+        raise MissingArgumentException("--profile value is not added")
+
+    if args[index] not in list_of_arguments:
+        return args[index]
+    else:
+        MissingArgumentException("--profile value is not added")
+
+
+def downloadFile(post: Post, profile_name) -> bool:
+    file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
+    index = 0
+    hasDownloadedAll = True
+    for m in post.media:
+        try:
+            if m.video:
+                writeVideo(m.media, index, file.createFolder().getDir())
+            else:
+                writeImage(m.media, index, file.createFolder().getDir())
+            index += 1
+        except Exception as e:
+            hasDownloadedAll = False
+            logger.error(f"Failed to download image from post id: {post.id} index {index} due to {e}")
+
+    logger.info(f"Downloaded id {post.id} {index} times out of {len(post.media)}")
+    return hasDownloadedAll
 
 
 def downloadFiles(posts, profile_name):
@@ -41,21 +85,10 @@ def downloadFiles(posts, profile_name):
     failed = []
     count = 0
     for post in posts.getAll():
-        file = FileUtil(f"{data_path}/{profile_name}/{post.id}/")
-        index = 0
-        for m in post.media:
-            try:
-                if m.video:
-                    writeVideo(m.media, index, file.createFolder().getDir())
-                else:
-                    writeImage(m.media, index, file.createFolder().getDir())
-                index += 1
-            except Exception as e:
-                failed.append(post.id)
-                logger.error(f"Failed to download image from post id: {post.id} index {index} due to {e}")
+        if not downloadFile(post, profile_name):
+            failed.append(post.id)
         if count % 10 == 0:
             logger.info(f"{count}/{posts.getSize()} has been downloaded")
-        logger.info(f"Downloaded id {post.id} {index} times out of {len(post.media)}")
         count += 1
     if len(failed) is not 0:
         logger.error(f"Failed to completely download this ids {failed}")
@@ -72,7 +105,7 @@ def failedExtract(id, e):
     logger.error(f"Failed to extract the post id {id} due to {str(e)})")
 
 
-def main(bot: PostBot):
+def main(bot: PostBot, method):
     logger.info("Opening the landing page")
     bot.landOnPage()
     bot.waitTillLoginPageLoaded(10)
@@ -83,6 +116,10 @@ def main(bot: PostBot):
     bot.waitTillInstagramLogoDetected(10)
     logger.info("Login was successful")
 
+    method(bot)
+
+
+def defaultMethod(bot: PostBot):
     for profileName in profileList:
         try:
             logger.info(f"Attempting to open the user profile of {profileName}")
@@ -107,17 +144,23 @@ def main(bot: PostBot):
             logger.error(e.message)
 
 
-def run(attempt=0):
+def idMethod(bot: PostBot):
+    bot.landOnPostById(getId(sys.argv))
+    post: Post = bot.getPost(getId(sys.argv))
+    downloadFile(post, profileList[0])
+
+
+def run(method, attempt=0):
     postBot = PostBot(isHeadless(sys.argv))
     try:
-        main(postBot)
+        main(postBot, method)
         postBot.closeDriver()
     except InstagramException as e:
         postBot.closeDriver()
         logger.error(e.message)
         if attempt < 3:
             attempt += 1
-            run(attempt)
+            run(method, attempt)
     except Exception as e:
         postBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
@@ -142,8 +185,16 @@ if __name__ == "__main__":
 
     logger = setUpLogging(logFile.createFolder().getPath())
 
-    for user in config["accounts"]:
-        username = config[f"account-{user}"]["username"]
-        password = config[f"account-{user}"]["password"]
-        profileList = config[f"account-{user}"]["profile"]
-        run()
+    if isId(sys.argv):
+        username = config[f"account-{getAccount(sys.argv)}"]["username"]
+        password = config[f"account-{getAccount(sys.argv)}"]["password"]
+        profileList = [getProfile(sys.argv)]
+        run(idMethod)
+    else:
+        for user in config["accounts"]:
+            username = config[f"account-{user}"]["username"]
+            password = config[f"account-{user}"]["password"]
+            profileList = config[f"account-{user}"]["profile"]
+            pdb.set_trace()
+            if profileList is not None:
+                run(defaultMethod)
