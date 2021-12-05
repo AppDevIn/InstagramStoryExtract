@@ -12,3 +12,11 @@ class MissingArgumentException(Exception):
         super(MissingArgumentException, self).__init__()
         self.message = message
         self.default_message = default_message
+
+
+class NoUserStoryException(Exception):
+
+    def __init__(self, message, default_message=""):
+        super(NoUserStoryException, self).__init__()
+        self.message = message
+        self.default_message = default_message

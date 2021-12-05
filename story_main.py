@@ -6,7 +6,7 @@ import yaml
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
-from src.Exception.CustomException import InstagramException, MissingArgumentException
+from src.Exception.CustomException import InstagramException, MissingArgumentException, NoUserStoryException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
@@ -135,6 +135,9 @@ def run(attempt=0):
         elif (hasRetry() or hasAttempt()) and attempt < retry_attempt:
             attempt += 1
             run(attempt)
+    except NoUserStoryException as e:
+        instagram.closeDriver()
+        logger.error(e.message)
     except Exception as e:
         logger.error(str(e))
         instagram.closeDriver()
