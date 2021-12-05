@@ -18,7 +18,7 @@ from src.model.post import Post
 load_dotenv()
 env = os.getenv('env')
 
-list_of_arguments = ["--id", "--account", "--profile"]
+list_of_arguments = ["--id", "--account", "--profile", "--attempt"]
 
 
 def isHeadless(args):
@@ -27,6 +27,10 @@ def isHeadless(args):
 
 def isId(args):
     return "--id" in args and "--account" in args and "--profile" in args
+
+
+def hasAttempt():
+    return "--attempt" in sys.argv
 
 
 def getId(args) -> str:
@@ -59,6 +63,17 @@ def getProfile(args) -> str:
         return args[index]
     else:
         MissingArgumentException("--profile value is not added")
+
+
+def getAttempt(args=sys.argv) -> str:
+    index = args.index("--attempt") + 1
+    if index > (len(args) - 1):
+        raise MissingArgumentException("--attempt value is not added")
+
+    if args[index] not in list_of_arguments:
+        return args[index]
+    else:
+        MissingArgumentException("--attempte value is not added")
 
 
 def downloadFile(post: Post, profile_name) -> bool:
@@ -158,7 +173,7 @@ def run(method, attempt=0):
     except InstagramException as e:
         postBot.closeDriver()
         logger.error(e.message)
-        if attempt < 3:
+        if attempt < retry_attempt:
             attempt += 1
             run(method, attempt)
     except Exception as e:
@@ -180,6 +195,11 @@ if __name__ == "__main__":
     json_filename = data_path["json_filename"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
+    if hasAttempt():
+        retry_attempt = int(getAttempt())
+    else:
+        retry_attempt = config["retry_attempt"]
+
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
@@ -195,6 +215,5 @@ if __name__ == "__main__":
             username = config[f"account-{user}"]["username"]
             password = config[f"account-{user}"]["password"]
             profileList = config[f"account-{user}"]["profile"]
-            pdb.set_trace()
             if profileList is not None:
                 run(defaultMethod)
