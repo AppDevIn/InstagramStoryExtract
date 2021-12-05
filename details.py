@@ -60,7 +60,13 @@ def main(bot: DetailsBot):
             logger.info(f"Number of following {user_profile.following}")
             logger.info(f"Number of profile url {user_profile.profile_picture}")
 
-            bot.getFollowing(user_profile.following)
+            file = FileUtil(f"{data_path}/{profileName}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/").createFolder()
+            writeImage(user_profile.profile_picture, "profile", file.getDir())
+
+            with open(f"{file.getDir()}/{json_filename}", "w") as outfile:
+                data = json.dumps(user_profile, cls=ListOfPostEncoder, ensure_ascii=False, )
+                outfile.write(data)
+
         except InstagramException as e:
             logger.error(e.message)
 
@@ -90,9 +96,9 @@ if __name__ == "__main__":
             print(exc)
 
     config = config[f"instagram-{env}"]
-    data_path = config["post"]
+    data_path = config["details"]
     log_path = config["directory"] + data_path["logs"]
-    json_filename = data_path["json_filename"]
+    json_filename = data_path["filename"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
