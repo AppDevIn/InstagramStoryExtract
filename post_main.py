@@ -18,7 +18,7 @@ from src.model.post import Post
 load_dotenv()
 env = os.getenv('env')
 
-list_of_arguments = ["--id", "--account", "--profile", "--attempt"]
+list_of_arguments = ["--id", "--account", "--profile", "--attempt", "-r"]
 
 
 def isHeadless(args):
@@ -31,6 +31,10 @@ def isId(args):
 
 def hasAttempt():
     return "--attempt" in sys.argv
+
+
+def hasRetry():
+    return "-r" in sys.argv
 
 
 def getId(args) -> str:
@@ -173,7 +177,7 @@ def run(method, attempt=0):
     except InstagramException as e:
         postBot.closeDriver()
         logger.error(e.message)
-        if attempt < retry_attempt:
+        if (hasRetry() or hasAttempt()) and attempt < retry_attempt:
             attempt += 1
             run(method, attempt)
     except Exception as e:

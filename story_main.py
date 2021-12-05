@@ -1,11 +1,12 @@
 import os
+import pdb
 from datetime import datetime
 
 import yaml
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
-from src.Exception.CustomException import InstagramException
+from src.Exception.CustomException import InstagramException, MissingArgumentException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
@@ -17,6 +18,8 @@ from functools import partial
 load_dotenv()
 env = os.getenv('env')
 
+list_of_arguments = ["--gui", "--headless", "-r", "--attempt"]
+
 
 def isHeadless(args):
     return "--headless" in sys.argv
@@ -24,6 +27,25 @@ def isHeadless(args):
 
 def isGUI():
     return "--gui" in sys.argv
+
+
+def hasAttempt():
+    return "--attempt" in sys.argv
+
+
+def hasRetry():
+    return "-r" in sys.argv
+
+
+def getAttempt(args=sys.argv) -> str:
+    index = args.index("--attempt") + 1
+    if index > (len(args) - 1):
+        raise MissingArgumentException("--attempt value is not added")
+
+    if args[index] not in list_of_arguments:
+        return args[index]
+    else:
+        MissingArgumentException("--attempte value is not added")
 
 
 def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
@@ -100,7 +122,7 @@ def tryAgain(error):
     gui.start()
 
 
-def run():
+def run(attempt=0):
     instagram = StoryBot(isHeadless(sys.argv))
     try:
         main(instagram)
@@ -110,6 +132,9 @@ def run():
         logger.error(e.message)
         if isGUI():
             tryAgain(e.message)
+        elif (hasRetry() or hasAttempt()) and attempt < retry_attempt:
+            attempt += 1
+            run(attempt)
     except Exception as e:
         logger.error(str(e))
         instagram.closeDriver()
@@ -128,6 +153,10 @@ if __name__ == "__main__":
     log_path = config["directory"] + data_path["logs"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
+    if hasAttempt():
+        retry_attempt = int(getAttempt())
+    else:
+        retry_attempt = config["retry_attempt"]
     logFile = FileUtil(f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}"
                        , f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.log")
 
@@ -137,4 +166,5 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        run()
+        if profileList is not None:
+            run()
