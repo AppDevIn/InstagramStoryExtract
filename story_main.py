@@ -21,7 +21,7 @@ from telegrambot.bot import TeleBot
 load_dotenv()
 env = os.getenv('env')
 
-list_of_arguments = ["--gui", "--headless", "-r", "--attempt"]
+list_of_arguments = ["--gui", "--headless", "-r", "--attempt", "-t"]
 
 
 def isHeadless(args):
@@ -40,8 +40,13 @@ def hasRetry():
     return "-r" in sys.argv
 
 
+def hasTele():
+    return "-t" in sys.argv
+
+
 def send_telemessage(message):
-    telebot.send_message(chatId, message)
+    if hasTele():
+        telebot.send_message(chatId, message)
 
 
 def send_photo(photo):
@@ -174,8 +179,7 @@ if __name__ == "__main__":
     TOKEN = c["telegram-api-key"]
     chatId = c["chat-id"]
     telebot = TeleBot(TOKEN)
-    telebot.send_message(chatId,
-                         f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT_NO_UNDERSCORE)},"
+    send_telemessage(f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT_NO_UNDERSCORE)},"
                          f" starting scrap protocol")
     if hasAttempt():
         retry_attempt = int(getAttempt())
