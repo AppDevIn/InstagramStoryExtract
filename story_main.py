@@ -73,7 +73,10 @@ def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
         else:
             writeImage(story.media, filename, file.createFolder().getDir())
         logger.info(f"File is saved into {file.getDir()}")
+    snapScreenshotOfProfile(bot, profile_name)
 
+
+def snapScreenshotOfProfile(bot, profile_name):
     bot.landProfilePage(profile_name)
     screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{datetime.now().strftime(DateUtil.TIME_FORMAT)}.png"
     logger.info(f"Saving screenshot in {screenshot_path}")
@@ -129,6 +132,7 @@ def main(bot: StoryBot):
             send_telemessage(f"Sir, we experience unknown error {e.message}")
         except NoUserStoryException as e:
             logger.info(e.message)
+            snapScreenshotOfProfile(bot, profileName)
             send_telemessage(f"Sir, {profileName} has no story today")
 
 
@@ -180,7 +184,7 @@ if __name__ == "__main__":
     chatId = c["chat-id"]
     telebot = TeleBot(TOKEN)
     send_telemessage(f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT_NO_UNDERSCORE)},"
-                         f" starting scrap protocol")
+                     f" starting scrap protocol")
     if hasAttempt():
         retry_attempt = int(getAttempt())
     else:
@@ -194,7 +198,8 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
+        send_telemessage(f"Sir, following profiles {' '.join(profileList)} with accessed using {user} account")
         if profileList is not None:
             run()
 
-    send_telemessage("Sir, we have scrapped all the requested data")
+    send_telemessage("Sir, we have scrapped all the requested data. Have great day ahead sir 😊")
