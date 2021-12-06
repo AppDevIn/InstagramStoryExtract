@@ -17,8 +17,9 @@ class User:
         self.followers = followers
 
     def addFollowers(self, user):
-        self.followers_list.append(user)
+        if user not in self.followers_list:
+            self.followers_list.append(user)
 
     def addFollowing(self, user):
-        if user not in self.following:
+        if user not in self.following_list:
             self.following_list.append(user)

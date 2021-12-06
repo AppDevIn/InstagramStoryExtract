@@ -12,7 +12,6 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 from dotenv import load_dotenv
 from src.model.ListOfPostModel import ListOfPost, ListOfPostEncoder
 
-
 load_dotenv()
 env = os.getenv('env')
 
@@ -47,8 +46,15 @@ def main(bot: DetailsBot):
             logger.info(f"Number of following {user_profile.following}")
             logger.info(f"Number of profile url {user_profile.profile_picture}")
 
-            file = FileUtil(f"{data_path}/{profileName}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/").createFolder()
+            file = FileUtil(
+                f"{data_path}/{profileName}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/").createFolder()
             writeImage(user_profile.profile_picture, "profile", file.getDir())
+            bot.getFollowers(user_profile.followers)
+            bot.closeFollow()
+            bot.getFollowing(user_profile.following)
+
+            logger.info(f"Number of followers extracted {len(user_profile.followers_list)}")
+            logger.info(f"Number of following extracted {len(user_profile.following_list)}")
 
             with open(f"{file.getDir()}/{json_filename}", "w") as outfile:
                 data = json.dumps(user_profile, cls=ListOfPostEncoder, ensure_ascii=False, )

@@ -26,7 +26,7 @@ class DetailsBot(BaseBot):
         return self.user
 
     def getProfilePicture(self) -> User:
-        img_url = self.find_element_by_css_selector(".RR-M- img")\
+        img_url = self.find_element_by_css_selector(".RR-M- img") \
             .get_attribute("src")
 
         self.user.addProfilePicture(img_url)
@@ -45,11 +45,28 @@ class DetailsBot(BaseBot):
         target = self.find_element_by_css_selector(".isgrP")
 
         elements = []
-        print(int(followers.split()[0]))
-        while len(elements) < int(followers.split()[0]):
+        previous_count = 0
+        while True:
             self.execute_script("arguments[0].scrollBy(0,10000000);", target)
-            elements = self.find_elements_by_css_selector(".isgrP ul li")
-            print(len(elements))
+
+            elements = elements + self.find_elements_by_css_selector(".isgrP ul li")
+            for e in elements:
+                try:
+                    self.user.addFollowers(e.find_element_by_css_selector("a.FPmhX").get_attribute("innerText"))
+                except Exception as e:
+                    continue
+
+            elements = set(elements)
+            elements = list(elements)
+
+            print(f"Extract following records {len(elements)}")
+            if len(elements) <= previous_count:
+                break
+            previous_count = len(elements)
+
+
+    def closeFollow(self):
+        self.find_element_by_css_selector("div.WaOAr:nth-child(3) > button:nth-child(1)").click()
 
     def getFollowing(self, following):
         header = self.find_element_by_css_selector(".k9GMp")
@@ -60,28 +77,22 @@ class DetailsBot(BaseBot):
         target = self.find_element_by_css_selector(".isgrP")
 
         elements = []
-        previousCount = 0
-        print(int(following.split()[0]))
-        while len(elements) < int(following.split()[0]):
+        previous_count = 0
+        while True:
             self.execute_script("arguments[0].scrollBy(0,10000000);", target)
 
             elements = elements + self.find_elements_by_css_selector(".isgrP ul li")
             for e in elements:
                 try:
-                    self.user.addFollowing(e.get_attribute("innerText"))
+                    self.user.addFollowing(e.find_element_by_css_selector("a.FPmhX").get_attribute("innerText"))
                 except Exception as e:
                     continue
 
             elements = set(elements)
             elements = list(elements)
-            print(len(elements))
-        pdb.set_trace()
 
-
-
-
-
-
-
-
+            print(f"Extract following records {len(elements)}")
+            if len(elements) <= previous_count:
+                break
+            previous_count = len(elements)
 
