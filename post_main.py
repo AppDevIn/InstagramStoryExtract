@@ -155,18 +155,29 @@ def defaultMethod(bot: PostBot):
             posts: ListOfPost = bot.getPosts(everySuccessfulPost, failedCallback=failedExtract)
             logger.info(f"Total number of post extracted are {posts.getSize()}")
 
+            file = FileUtil(f"{data_path}/{profileList[0]}/records/{datetime.now().strftime(DateUtil.DATE_FORMAT)}",
+                            f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.json")
             downloadFiles(posts, profileName)
-            with open(f"{data_path}/{profileName}/{json_filename}", "w") as outfile:
-                data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False, )
+            with open(file.createFolder().getPath(), "w") as outfile:
+                data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False)
                 outfile.write(data)
         except InstagramException as e:
             logger.error(e.message)
 
 
 def idMethod(bot: PostBot):
-    bot.landOnPostById(getId(sys.argv))
-    post: Post = bot.getPost(getId(sys.argv))
-    downloadFile(post, profileList[0])
+    list_of_id = getId(sys.argv).split(",")
+    posts: ListOfPost = ListOfPost()
+    file = FileUtil(f"{data_path}/{profileList[0]}/records/{datetime.now().strftime(DateUtil.DATE_FORMAT)}", f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.json")
+    for id in list_of_id:
+        bot.landOnPostById(id)
+        post: Post = bot.getPost(id)
+        downloadFile(post, profileList[0])
+        posts.add(post)
+
+    with open(file.createFolder().getPath(), "w") as outfile:
+        data = json.dumps(posts, cls=ListOfPostEncoder, ensure_ascii=False)
+        outfile.write(data)
 
 
 def run(method, attempt=0):
