@@ -33,6 +33,10 @@ def hasAttempt():
     return "--attempt" in sys.argv
 
 
+def hasProfile():
+    return "--profile" in sys.argv
+
+
 def hasRetry():
     return "-r" in sys.argv
 
@@ -168,7 +172,8 @@ def defaultMethod(bot: PostBot):
 def idMethod(bot: PostBot):
     list_of_id = getId(sys.argv).split(",")
     posts: ListOfPost = ListOfPost()
-    file = FileUtil(f"{data_path}/{profileList[0]}/records/{datetime.now().strftime(DateUtil.DATE_FORMAT)}", f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.json")
+    file = FileUtil(f"{data_path}/{profileList[0]}/records/{datetime.now().strftime(DateUtil.DATE_FORMAT)}",
+                    f"{datetime.now().strftime(DateUtil.TIME_FORMAT)}.json")
     for id in list_of_id:
         bot.landOnPostById(id)
         post: Post = bot.getPost(id)
@@ -220,9 +225,14 @@ if __name__ == "__main__":
 
     logger = setUpLogging(logFile.createFolder().getPath())
 
-    if isId(sys.argv):
+    if isId(sys.argv) or hasProfile():
         username = config[f"account-{getAccount(sys.argv)}"]["username"]
         password = config[f"account-{getAccount(sys.argv)}"]["password"]
+
+    if hasProfile():
+        profileList = [getProfile(sys.argv)]
+        run(defaultMethod)
+    elif isId(sys.argv):
         profileList = [getProfile(sys.argv)]
         run(idMethod)
     else:
