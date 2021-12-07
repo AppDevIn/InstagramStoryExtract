@@ -74,7 +74,7 @@ class StoryBot(BaseBot):
             return False
 
     def takeScreenshot(self, css: str, path):
-        time.sleep(1)
+        time.sleep(3)
         element = self.find_element_by_css_selector(css)
         element.screenshot(path)
 

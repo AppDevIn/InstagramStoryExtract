@@ -199,7 +199,7 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        send_telemessage(f"Sir, following profiles {' '.join(profileList)} with access from {user} account")
+        send_telemessage(f"Sir, following profiles {', '.join(profileList)} with access from {user} account")
         if profileList is not None:
             run()
 
