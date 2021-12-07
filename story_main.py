@@ -79,7 +79,7 @@ def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
 
 def snapScreenshotOfProfile(bot, profile_name):
     bot.landProfilePage(profile_name)
-    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{datetime.now().strftime(DateUtil.TIME_FORMAT)}.png"
+    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
     logger.info(f"Saving screenshot in {screenshot_path}")
     bot.takeScreenshot(".zw3Ow", screenshot_path)
     send_photo(screenshot_path)
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        send_telemessage(f"Sir, following profiles {' '.join(profileList)} with accessed using {user} account")
+        send_telemessage(f"Sir, following profiles {' '.join(profileList)} with access from {user} account")
         if profileList is not None:
             run()
 
