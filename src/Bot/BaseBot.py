@@ -42,8 +42,7 @@ class BaseBot(webdriver.Chrome):
         try:
             username_ele = self.find_element_by_name("username")
             password_ele = self.find_element_by_name("password")
-            login_btn = self.find_element_by_xpath(
-                '/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div/div[3]/button')
+            login_btn = self.find_element_by_css_selector("#loginForm button.L3NKy")
 
             username_ele.send_keys(username)
             password_ele.send_keys(password)
@@ -56,7 +55,7 @@ class BaseBot(webdriver.Chrome):
         try:
             WebDriverWait(self, timeout).until(
                 EC.presence_of_element_located(
-                    (By.XPATH, "/html/body/div[1]/section/nav/div[2]/div/div/div[1]/a/div/div"))
+                    (By.CSS_SELECTOR, "div._8MQSO a > div > div"))
             )
         except Exception as e:
             raise InstagramException("Unable to detect logo", str(e))

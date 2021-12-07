@@ -1,4 +1,5 @@
 import os
+import pathlib
 import pdb
 import time
 from datetime import datetime
@@ -169,7 +170,7 @@ def run(attempt=0):
 
 if __name__ == "__main__":
     c = {}
-    with open('config.yaml') as file:
+    with open(f'{pathlib.Path(__file__).parent.resolve()}/config.yaml') as file:
         try:
             c = yaml.safe_load(file)
         except yaml.YAMLError as exc:
