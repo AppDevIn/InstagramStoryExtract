@@ -7,6 +7,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+
+from webdriver_manager.utils import ChromeType
+
 import src.model.constants as const
 
 import logging
@@ -20,7 +23,7 @@ class BaseBot(webdriver.Chrome):
         chrome_options = Options()
         if headless:
             chrome_options.add_argument("--headless")
-        super(BaseBot, self).__init__(ChromeDriverManager().install(), options=chrome_options)
+        super(BaseBot, self).__init__(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(), options=chrome_options)
         self.implicitly_wait(5)
 
     def landOnPage(self):
