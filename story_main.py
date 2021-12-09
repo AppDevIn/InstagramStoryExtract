@@ -1,7 +1,6 @@
 import os
 import pathlib
 import pdb
-import time
 from datetime import datetime
 
 import yaml
@@ -13,7 +12,6 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
-from src.GUI import GUI
 from src.model.StoriesModel import StoriesModel
 from functools import partial
 
@@ -137,18 +135,6 @@ def main(bot: StoryBot):
             send_telemessage(f"Sir, {profileName} has no story today")
 
 
-def subTryAgain(window):
-    window.quit()
-    run()
-
-
-def tryAgain(error):
-    gui = GUI(error)
-    gui.setPositiveButton("Try again", partial(subTryAgain, gui))
-    gui.setNegativeButton("Close")
-    gui.start()
-
-
 def run(attempt=0):
     instagram = StoryBot(isHeadless(sys.argv))
     try:
@@ -157,9 +143,7 @@ def run(attempt=0):
     except InstagramException as e:
         instagram.closeDriver()
         logger.error(e.message)
-        if isGUI():
-            tryAgain(e.message)
-        elif (hasRetry() or hasAttempt()) and attempt < retry_attempt:
+        if (hasRetry() or hasAttempt()) and attempt < retry_attempt:
             logger.info("Failed to login, retrying...")
             attempt += 1
             run(attempt)
