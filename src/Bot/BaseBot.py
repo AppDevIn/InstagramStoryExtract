@@ -1,7 +1,7 @@
+import pathlib
 import time
 
 from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -13,18 +13,24 @@ from webdriver_manager.utils import ChromeType
 
 import src.model.constants as const
 
-import logging
 import pdb
 
 from src.Exception.CustomException import InstagramException
+from src.FileUtil import readYaml
+from src.model.DriverModeEnum import DriverMode
 
 
-class BaseBot(webdriver.Remote):
+class BaseBot(webdriver.Chrome):
     def __init__(self, headless):
         chrome_options = Options()
+        config = readYaml(f'{pathlib.Path(__name__).parent.resolve()}/config.yaml')
         if headless:
             chrome_options.add_argument("--headless")
-        super(BaseBot, self).__init__(options=chrome_options, desired_capabilities=DesiredCapabilities.CHROME)
+        if DriverMode.CHROMEDRIVERMANAGER == config["driver"]["mode"]:
+            super(BaseBot, self).__init__(config["driver"]["path"], options=chrome_options)
+        else:
+            super(BaseBot, self).__init__(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(),
+                                          options=chrome_options)
         self.implicitly_wait(5)
 
     def landOnPage(self):
