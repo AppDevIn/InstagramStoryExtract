@@ -1,6 +1,7 @@
 import time
 
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -18,12 +19,12 @@ import pdb
 from src.Exception.CustomException import InstagramException
 
 
-class BaseBot(webdriver.Chrome):
+class BaseBot(webdriver.Remote):
     def __init__(self, headless):
         chrome_options = Options()
         if headless:
             chrome_options.add_argument("--headless")
-        super(BaseBot, self).__init__(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(), options=chrome_options)
+        super(BaseBot, self).__init__(options=chrome_options, desired_capabilities=DesiredCapabilities.CHROME)
         self.implicitly_wait(5)
 
     def landOnPage(self):
