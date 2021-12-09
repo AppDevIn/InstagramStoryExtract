@@ -232,12 +232,12 @@ if __name__ == "__main__":
         username = config[f"account-{getAccount(sys.argv)}"]["username"]
         password = config[f"account-{getAccount(sys.argv)}"]["password"]
 
-    if hasProfile():
-        profileList = [getProfile(sys.argv)]
-        run(defaultMethod)
-    elif isId(sys.argv):
+    if isId(sys.argv):
         profileList = [getProfile(sys.argv)]
         run(idMethod)
+    elif hasProfile():
+        profileList = [getProfile(sys.argv)]
+        run(defaultMethod)
     else:
         for user in config["accounts"]:
             username = config[f"account-{user}"]["username"]
