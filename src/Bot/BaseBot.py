@@ -16,18 +16,16 @@ import src.model.constants as const
 import pdb
 
 from src.Exception.CustomException import InstagramException
-from src.FileUtil import readYaml
 from src.model.DriverModeEnum import DriverMode
 
 
 class BaseBot(webdriver.Chrome):
-    def __init__(self, headless):
+    def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
         chrome_options = Options()
-        config = readYaml(f'{pathlib.Path(__name__).parent.resolve()}/config.yaml')
         if headless:
             chrome_options.add_argument("--headless")
-        if DriverMode.CHROMEDRIVERMANAGER == config["driver"]["mode"]:
-            super(BaseBot, self).__init__(config["driver"]["path"], options=chrome_options)
+        if DriverMode.CHROME.value == mode:
+            super(BaseBot, self).__init__(path, options=chrome_options)
         else:
             super(BaseBot, self).__init__(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(),
                                           options=chrome_options)

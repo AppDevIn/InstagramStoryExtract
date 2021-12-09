@@ -6,18 +6,6 @@ import uuid0
 import pdb
 import logging
 
-import yaml
-
-
-def readYaml(path) -> {}:
-    config = {}
-    with open(path) as file:
-        try:
-            config = yaml.safe_load(file)
-        except yaml.YAMLError as exc:
-            print(exc)
-    return config
-
 
 def writeImage(link, name, path):
     url = link.split()[0]

@@ -6,6 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from src.Bot.BaseBot import BaseBot
 from src.Exception.CustomException import InstagramException
+from src.model.DriverModeEnum import DriverMode
 from src.model.ListOfPostModel import ListOfPost
 from src.model.post import Media, Post, Comment
 import src.model.constants as const
@@ -14,8 +15,8 @@ import pdb
 
 
 class PostBot(BaseBot):
-    def __init__(self, headless):
-        super(PostBot, self).__init__(headless)
+    def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
+        super(PostBot, self).__init__(headless, path=path, mode=mode)
 
     def landOnPostById(self, id):
         self.get(f"{const.BASE_URL}/p/{id}")

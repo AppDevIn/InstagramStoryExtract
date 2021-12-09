@@ -186,7 +186,7 @@ def idMethod(bot: PostBot):
 
 
 def run(method, attempt=0):
-    postBot = PostBot(isHeadless(sys.argv))
+    postBot = PostBot(isHeadless(sys.argv), path=chrome_path, mode=mode)
     try:
         main(postBot, method)
         postBot.closeDriver()
@@ -209,12 +209,15 @@ if __name__ == "__main__":
         except yaml.YAMLError as exc:
             print(exc)
 
+    chrome_path = config["driver"]["path"]
+    mode = config["driver"]["mode"]
     config = config[f"instagram-{env}"]
     data_path = config["post"]
     log_path = config["directory"] + data_path["logs"]
     json_filename = data_path["json_filename"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
+
     if hasAttempt():
         retry_attempt = int(getAttempt())
     else:

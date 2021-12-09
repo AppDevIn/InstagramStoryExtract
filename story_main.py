@@ -12,6 +12,7 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.model.DriverModeEnum import DriverMode
 from src.model.StoriesModel import StoriesModel
 from functools import partial
 
@@ -135,8 +136,8 @@ def main(bot: StoryBot):
             send_telemessage(f"Sir, {profileName} has no story today")
 
 
-def run(attempt=0):
-    instagram = StoryBot(isHeadless(sys.argv))
+def run(attempt=0, ):
+    instagram = StoryBot(isHeadless(sys.argv), path=chrome_path, mode=mode)
     try:
         main(instagram)
         instagram.closeDriver()
@@ -160,6 +161,8 @@ if __name__ == "__main__":
         except yaml.YAMLError as exc:
             print(exc)
 
+    chrome_path = c["driver"]["path"]
+    mode = c["driver"]["mode"]
     config = c[f"instagram-{env}"]
     data_path = config["story"]
     log_path = config["directory"] + data_path["logs"]

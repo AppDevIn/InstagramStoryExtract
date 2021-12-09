@@ -9,12 +9,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from src.Bot.BaseBot import BaseBot
 import src.model.constants as const
 from src.Exception.CustomException import InstagramException, NoUserStoryException
+from src.model.DriverModeEnum import DriverMode
 
 
 class StoryBot(BaseBot):
 
-    def __init__(self, headless):
-        super(StoryBot, self).__init__(headless)
+    def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
+        super(StoryBot, self).__init__(headless, path=path, mode=mode)
 
     def __int__(self, base: BaseBot):
         super(base)
