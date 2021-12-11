@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException, MissingArgumentException, LoginException, \
-    NoUserStoryException
+    NoUserStoryException, StoryExtractionException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
@@ -51,7 +51,8 @@ def send_telemessage(message):
 
 
 def send_photo(photo):
-    telebot.send_photo(chatId, photo)
+    if hasTele():
+        telebot.send_photo(chatId, photo)
 
 
 def getAttempt(args=sys.argv) -> str:
@@ -116,7 +117,7 @@ def main(bot: StoryBot):
             logger.info(f"Attempting to download them")
             downloadFiles(bot, stories, profileName)
             send_telemessage(f"{profileName} has {stories.getSize()} image/video and is downloaded")
-        except InstagramException as e:
+        except StoryExtractionException as e:
             logger.error(e.message)
             send_telemessage(f"Sir, we experience unknown error {e.message}")
         except NoUserStoryException as e:
@@ -125,7 +126,7 @@ def main(bot: StoryBot):
             send_telemessage(f"Sir, {profileName} has no story today")
 
 
-def run(attempt=0, ):
+def run(attempt=0):
     instagram = StoryBot(isHeadless(sys.argv), path=chrome_path, mode=mode)
     try:
         main(instagram)

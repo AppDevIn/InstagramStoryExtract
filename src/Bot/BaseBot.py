@@ -73,16 +73,16 @@ class BaseBot(webdriver.Chrome):
     def closeDriver(self):
         self.close()
 
-    def login(self, username, password, logger):
+    def login(self, username, password, logger, wait_time=5):
         try:
             logger.info("Opening the landing page")
             self.landOnPage()
-            self.waitTillLoginPageLoaded(10)
+            self.waitTillLoginPageLoaded(wait_time)
             logger.info("The page has loaded")
             self.loginIntoInstagram(username, password)
             logger.info("Attempting with the credentials given in config.yaml")
             logger.info(f"Login with username {username}")
-            self.waitTillInstagramLogoDetected(5)
+            self.waitTillInstagramLogoDetected(wait_time)
             logger.info("Login was successful")
         except InstagramException as e:
             raise LoginException(e.message, e.default_message)
