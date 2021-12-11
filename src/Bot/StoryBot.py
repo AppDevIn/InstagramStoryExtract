@@ -1,10 +1,7 @@
-import pdb
 import time
 from datetime import datetime
 
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions as EC
 
 from src.Bot.BaseBot import BaseBot
 import src.model.constants as const

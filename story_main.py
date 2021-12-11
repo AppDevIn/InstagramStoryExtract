@@ -1,9 +1,9 @@
 import os
 import pathlib
-import pdb
 from datetime import datetime
 
 import yaml
+from TeleBot import TeleBot
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
@@ -13,11 +13,7 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
-from src.model.DriverModeEnum import DriverMode
 from src.model.StoriesModel import StoriesModel
-from functools import partial
-
-from telegrambot.bot import TeleBot
 
 load_dotenv()
 env = os.getenv('env')

@@ -11,6 +11,7 @@ crayons==0.4.0
 flake8==4.0.1
 idna==2.10
 importlib-metadata==4.2.0
+-e git+https://github.com/AppDevIn/InstagramStoryExtract.git@e546dbd1169a1a45aede342e9a60e4770d035009#egg=InstagramScrap
 mccabe==0.6.1
 pybase62==0.4.3
 pycodestyle==2.8.0
@@ -25,8 +26,9 @@ selenium==3.141.0
 six==1.16.0
 soupsieve==2.2.1
 telebot==0.0.4
+-e git+https://github.com/AppDevIn/TelegramBot.git@99654ccad7405840643121eb4b74583a3e57a351#egg=TelegramBot
 tornado==6.1
-typing-extensions==4.0.0
+typing_extensions==4.0.0
 tzdata==2021.5
 tzlocal==4.1
 urllib3==1.26.5
