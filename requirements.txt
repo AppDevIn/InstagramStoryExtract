@@ -16,7 +16,6 @@ pybase62==0.4.3
 pycodestyle==2.8.0
 pyflakes==2.4.0
 python-dotenv==0.19.2
-python-telegram-bot==13.8.1
 pytz==2021.3
 pytz-deprecation-shim==0.1.0.post0
 PyYAML==6.0
@@ -24,7 +23,6 @@ requests==2.25.1
 selenium==3.141.0
 six==1.16.0
 soupsieve==2.2.1
-telebot==0.0.4
 -e git+https://github.com/AppDevIn/TelegramBot.git@99654ccad7405840643121eb4b74583a3e57a351#egg=TelegramBot
 tornado==6.1
 typing_extensions==4.0.0
