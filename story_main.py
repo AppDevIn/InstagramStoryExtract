@@ -82,24 +82,6 @@ def snapScreenshotOfProfile(bot, profile_name):
     send_photo(screenshot_path)
 
 
-def extractStories(bot: StoryBot, stories: StoriesModel) -> StoriesModel:
-    logger.info("Starting to extract stories")
-    while bot.stillInStory():
-        bot.implicitly_wait(0)
-        dateTime = DateUtil.utc_time_to_zone(bot.getTimeOfStory(), zone)
-        logger.info(f"Story was posted on {dateTime}")
-
-        if bot.isVideo():
-            stories.add(bot.getVideoLink(), dateTime, True)
-        else:
-            stories.add(bot.getImageLink(), dateTime, False)
-
-        bot.next()
-    logger.info("End stories extract")
-    bot.implicitly_wait(5)
-    return stories
-
-
 def main(bot: StoryBot):
 
     bot.login(username, password, logger)
