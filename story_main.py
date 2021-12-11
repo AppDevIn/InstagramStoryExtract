@@ -7,7 +7,8 @@ import yaml
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
-from src.Exception.CustomException import InstagramException, MissingArgumentException, NoUserStoryException
+from src.Exception.CustomException import InstagramException, MissingArgumentException, LoginException, \
+    NoUserStoryException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
@@ -103,25 +104,13 @@ def extractStories(bot: StoryBot, stories: StoriesModel) -> StoriesModel:
 
 
 def main(bot: StoryBot):
-    logger.info("Opening the landing page")
-    bot.landOnPage()
-    bot.waitTillLoginPageLoaded(10)
-    logger.info("The page has loaded")
-    bot.loginIntoInstagram(username, password)
-    logger.info("Attempting with the credentials given in config.yaml")
-    logger.info(f"Login with username {username}")
-    bot.waitTillInstagramLogoDetected(5)
-    logger.info("Login was successful")
+
+    bot.login(username, password, logger)
 
     for profileName in profileList:
         try:
-            logger.info(f"Attempting to open the user story of {profileName}")
-            bot.landOnUserStory(profileName)
-            bot.clickOnConfirmationToView()
-            logger.info(f"Able to view the user story")
 
-            stories = StoriesModel()
-            stories = extractStories(bot, stories)
+            stories = bot.extractStories(logger, profileName)
 
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")

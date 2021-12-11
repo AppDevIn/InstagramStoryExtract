@@ -8,8 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from src.Bot.BaseBot import BaseBot
 import src.model.constants as const
-from src.Exception.CustomException import InstagramException, NoUserStoryException
+from src.DateUtil import DateUtil
+from src.Exception.CustomException import InstagramException, LoginException, NoUserStoryException, \
+    StoryExtractionException
 from src.model.DriverModeEnum import DriverMode
+from src.model.StoriesModel import StoriesModel
 
 
 class StoryBot(BaseBot):
@@ -79,6 +82,28 @@ class StoryBot(BaseBot):
         element = self.find_element_by_css_selector(css)
         element.screenshot(path)
 
+    def extractStories(self, logger, profile_name) -> StoriesModel:
+        try:
+            logger.info(f"Attempting to open the user story of {profile_name}")
+            self.landOnUserStory(profile_name)
+            self.clickOnConfirmationToView()
+            logger.info(f"Able to view the user story")
 
+            stories = StoriesModel()
+            logger.info("Starting to extract stories")
+            while self.stillInStory():
+                self.implicitly_wait(0)
+                dateTime = DateUtil.utc_time_to_zone(self.getTimeOfStory(), zone)
+                logger.info(f"Story was posted on {dateTime}")
 
+                if self.isVideo():
+                    stories.add(self.getVideoLink(), dateTime, True)
+                else:
+                    stories.add(self.getImageLink(), dateTime, False)
 
+                self.next()
+            logger.info("End stories extract")
+            self.implicitly_wait(5)
+            return stories
+        except InstagramException as e:
+            raise StoryExtractionException(e.message, e.default_message)

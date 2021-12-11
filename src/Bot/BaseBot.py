@@ -1,21 +1,16 @@
-import pathlib
-import time
-
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from datetime import datetime
 
 from webdriver_manager.utils import ChromeType
 
 import src.model.constants as const
 
-import pdb
 
-from src.Exception.CustomException import InstagramException
+from src.Exception.CustomException import InstagramException, LoginException
 from src.model.DriverModeEnum import DriverMode
 
 
@@ -77,3 +72,19 @@ class BaseBot(webdriver.Chrome):
 
     def closeDriver(self):
         self.close()
+
+    def login(self, username, password, logger):
+        try:
+            logger.info("Opening the landing page")
+            self.landOnPage()
+            self.waitTillLoginPageLoaded(10)
+            logger.info("The page has loaded")
+            self.loginIntoInstagram(username, password)
+            logger.info("Attempting with the credentials given in config.yaml")
+            logger.info(f"Login with username {username}")
+            self.waitTillInstagramLogoDetected(5)
+            logger.info("Login was successful")
+        except InstagramException as e:
+            raise LoginException(e.message, e.default_message)
+        except Exception as e:
+            raise LoginException(f"Unknown exception: {str(e)}", e)
