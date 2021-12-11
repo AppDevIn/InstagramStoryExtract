@@ -1,22 +1,19 @@
 import os
 import pathlib
-import pdb
 from datetime import datetime
 
 import yaml
+from TeleBot import TeleBot
 from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
-from src.Exception.CustomException import InstagramException, MissingArgumentException, NoUserStoryException
+from src.Exception.CustomException import MissingArgumentException, LoginException, \
+    NoUserStoryException, StoryExtractionException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
-from src.model.DriverModeEnum import DriverMode
 from src.model.StoriesModel import StoriesModel
-from functools import partial
-
-from telegrambot.bot import TeleBot
 
 load_dotenv()
 env = os.getenv('env')
@@ -24,7 +21,7 @@ env = os.getenv('env')
 list_of_arguments = ["--gui", "--headless", "-r", "--attempt", "-t"]
 
 
-def isHeadless(args):
+def isHeadless():
     return "--headless" in sys.argv
 
 
@@ -50,7 +47,8 @@ def send_telemessage(message):
 
 
 def send_photo(photo):
-    telebot.send_photo(chatId, photo)
+    if hasTele():
+        telebot.send_photo(chatId, photo)
 
 
 def getAttempt(args=sys.argv) -> str:
@@ -64,7 +62,7 @@ def getAttempt(args=sys.argv) -> str:
         MissingArgumentException("--attempte value is not added")
 
 
-def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
+def downloadFiles(stories: StoriesModel, profile_name, data_path, logger):
     for story in stories.getAll():
         file = FileUtil(f"{data_path}/{profile_name}/{story.dateTime.strftime(DateUtil.DATE_FORMAT)}/")
         filename = story.dateTime.strftime(DateUtil.TIME_FORMAT)
@@ -73,75 +71,45 @@ def downloadFiles(bot: StoryBot, stories: StoriesModel, profile_name):
         else:
             writeImage(story.media, filename, file.createFolder().getDir())
         logger.info(f"File is saved into {file.getDir()}")
-    snapScreenshotOfProfile(bot, profile_name)
 
 
-def snapScreenshotOfProfile(bot, profile_name):
+def snapScreenshotOfProfile(bot, profile_name, path) -> str:
     bot.landProfilePage(profile_name)
-    screenshot_path = f"{log_path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
-    logger.info(f"Saving screenshot in {screenshot_path}")
+    screenshot_path = f"{path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
     bot.takeScreenshot(".zw3Ow", screenshot_path)
-    send_photo(screenshot_path)
-
-
-def extractStories(bot: StoryBot, stories: StoriesModel) -> StoriesModel:
-    logger.info("Starting to extract stories")
-    while bot.stillInStory():
-        bot.implicitly_wait(0)
-        dateTime = DateUtil.utc_time_to_zone(bot.getTimeOfStory(), zone)
-        logger.info(f"Story was posted on {dateTime}")
-
-        if bot.isVideo():
-            stories.add(bot.getVideoLink(), dateTime, True)
-        else:
-            stories.add(bot.getImageLink(), dateTime, False)
-
-        bot.next()
-    logger.info("End stories extract")
-    bot.implicitly_wait(5)
-    return stories
+    return screenshot_path
 
 
 def main(bot: StoryBot):
-    logger.info("Opening the landing page")
-    bot.landOnPage()
-    bot.waitTillLoginPageLoaded(10)
-    logger.info("The page has loaded")
-    bot.loginIntoInstagram(username, password)
-    logger.info("Attempting with the credentials given in config.yaml")
-    logger.info(f"Login with username {username}")
-    bot.waitTillInstagramLogoDetected(5)
-    logger.info("Login was successful")
+
+    bot.login(username, password, logger)
 
     for profileName in profileList:
         try:
-            logger.info(f"Attempting to open the user story of {profileName}")
-            bot.landOnUserStory(profileName)
-            bot.clickOnConfirmationToView()
-            logger.info(f"Able to view the user story")
-
-            stories = StoriesModel()
-            stories = extractStories(bot, stories)
-
+            stories = bot.extractStories(logger, profileName, zone)
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")
-            downloadFiles(bot, stories, profileName)
+            downloadFiles(stories, profileName, data_path=data_path, logger=logger)
+            screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
+            logger.info(f"Saving screenshot in {screenshot_path}")
+            send_photo(screenshot_path)
             send_telemessage(f"{profileName} has {stories.getSize()} image/video and is downloaded")
-        except InstagramException as e:
+        except StoryExtractionException as e:
             logger.error(e.message)
             send_telemessage(f"Sir, we experience unknown error {e.message}")
         except NoUserStoryException as e:
             logger.info(e.message)
-            snapScreenshotOfProfile(bot, profileName)
+            screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
+            send_photo(screenshot_path)
             send_telemessage(f"Sir, {profileName} has no story today")
 
 
-def run(attempt=0, ):
-    instagram = StoryBot(isHeadless(sys.argv), path=chrome_path, mode=mode)
+def run(attempt=0):
+    instagram = StoryBot(isHeadless(), path=chrome_path, mode=mode)
     try:
         main(instagram)
         instagram.closeDriver()
-    except InstagramException as e:
+    except LoginException as e:
         instagram.closeDriver()
         logger.error(e.message)
         if (hasRetry() or hasAttempt()) and attempt < retry_attempt:
