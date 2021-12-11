@@ -21,7 +21,7 @@ env = os.getenv('env')
 list_of_arguments = ["--gui", "--headless", "-r", "--attempt", "-t"]
 
 
-def isHeadless(args):
+def isHeadless():
     return "--headless" in sys.argv
 
 
@@ -105,7 +105,7 @@ def main(bot: StoryBot):
 
 
 def run(attempt=0):
-    instagram = StoryBot(isHeadless(sys.argv), path=chrome_path, mode=mode)
+    instagram = StoryBot(isHeadless(), path=chrome_path, mode=mode)
     try:
         main(instagram)
         instagram.closeDriver()
