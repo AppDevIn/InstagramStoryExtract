@@ -111,7 +111,7 @@ def main(bot: StoryBot):
     for profileName in profileList:
         try:
 
-            stories = bot.extractStories(logger, profileName)
+            stories = bot.extractStories(logger, profileName, zone)
 
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")

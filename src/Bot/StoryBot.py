@@ -82,7 +82,7 @@ class StoryBot(BaseBot):
         element = self.find_element_by_css_selector(css)
         element.screenshot(path)
 
-    def extractStories(self, logger, profile_name) -> StoriesModel:
+    def extractStories(self, logger, profile_name, zone="Asia/Singapore") -> StoriesModel:
         try:
             logger.info(f"Attempting to open the user story of {profile_name}")
             self.landOnUserStory(profile_name)
