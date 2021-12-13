@@ -13,12 +13,15 @@ from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.TextBuilder import TextBuilder
 from src.model.StoriesModel import StoriesModel
 
 load_dotenv()
 env = os.getenv('env')
 
 list_of_arguments = ["--gui", "--headless", "-r", "--attempt", "-t"]
+
+textBuilder = TextBuilder()
 
 
 def isHeadless():
@@ -44,11 +47,6 @@ def hasTele():
 def send_telemessage(message):
     if hasTele():
         telebot.send_message(chatId, message)
-
-
-def send_photo(photo):
-    if hasTele():
-        telebot.send_photo(chatId, photo)
 
 
 def getAttempt(args=sys.argv) -> str:
@@ -92,22 +90,21 @@ def main(bot: StoryBot):
             downloadFiles(stories, profileName, data_path=data_path, logger=logger)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
             logger.info(f"Saving screenshot in {screenshot_path}")
-            send_photo(screenshot_path)
-            send_telemessage(f"{profileName} has {stories.getSize()} image/video and is downloaded")
+            textBuilder.addText(f"{profileName}: {stories.getSize()} stories")
         except StoryExtractionException as e:
             logger.error(e.message)
             send_telemessage(f"Sir, we experience unknown error {e.message}")
         except NoUserStoryException as e:
             logger.info(e.message)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
-            send_photo(screenshot_path)
-            send_telemessage(f"Sir, {profileName} has no story today")
+            textBuilder.addText(f"{profileName}: Has no story today")
 
 
 def run(attempt=0):
     instagram = StoryBot(isHeadless(), path=chrome_path, mode=mode)
     try:
         main(instagram)
+        send_telemessage(textBuilder.build())
         instagram.closeDriver()
     except LoginException as e:
         instagram.closeDriver()
@@ -139,8 +136,7 @@ if __name__ == "__main__":
     TOKEN = c["telegram-api-key"]
     chatId = c["chat-id"]
     telebot = TeleBot(TOKEN)
-    send_telemessage(f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT_NO_UNDERSCORE)},"
-                     f" starting scrap protocol")
+
     if hasAttempt():
         retry_attempt = int(getAttempt())
     else:
@@ -154,7 +150,7 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        send_telemessage(f"Sir, following profiles {', '.join(profileList)} with access from {user} account")
+        textBuilder.addText(f"From {user} account")
         if profileList is not None:
             run()
 
