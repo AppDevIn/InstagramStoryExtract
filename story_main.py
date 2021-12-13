@@ -97,7 +97,7 @@ def main(bot: StoryBot):
         except NoUserStoryException as e:
             logger.info(e.message)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
-            textBuilder.addText(f"{profileName}: Has no story today")
+            textBuilder.addText(f"{profileName}: No story")
 
 
 def run(attempt=0):
