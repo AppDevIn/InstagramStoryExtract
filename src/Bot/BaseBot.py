@@ -16,6 +16,7 @@ from src.model.DriverModeEnum import DriverMode
 
 class BaseBot(webdriver.Chrome):
     def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
+        self.dead = False
         chrome_options = Options()
         if headless:
             chrome_options.add_argument("--headless")
@@ -71,6 +72,7 @@ class BaseBot(webdriver.Chrome):
             raise InstagramException(f"Unable to access {profile_name}'s profile", str(e))
 
     def closeDriver(self):
+        self.dead = True
         self.quit()
 
     def login(self, username, password, logger, wait_time=5):
