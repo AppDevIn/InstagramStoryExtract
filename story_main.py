@@ -74,7 +74,6 @@ def downloadFiles(stories: StoriesModel, profile_name, data_path, logger):
 
 
 def snapScreenshotOfProfile(bot, profile_name, path) -> str:
-    bot.landProfilePage(profile_name)
     time.sleep(2)
     screenshot_path = f"{path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
     bot.takeScreenshot(".zw3Ow", screenshot_path)
@@ -91,6 +90,7 @@ def main(bot: StoryBot):
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")
             downloadFiles(stories, profileName, data_path=data_path, logger=logger)
+            bot.landProfilePage(profileName)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
             logger.info(f"Saving screenshot in {screenshot_path}")
             textBuilder.addText(f"{profileName}: {stories.getSize()} stories ✅")
