@@ -1,3 +1,4 @@
+import pdb
 import time
 from datetime import datetime
 
@@ -7,7 +8,7 @@ from src.Bot.BaseBot import BaseBot
 import src.model.constants as const
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import InstagramException, LoginException, NoUserStoryException, \
-    StoryExtractionException
+    StoryExtractionException, InvalidProfileException
 from src.model.DriverModeEnum import DriverMode
 from src.model.StoriesModel import StoriesModel
 
@@ -29,6 +30,8 @@ class StoryBot(BaseBot):
             self.find_element_by_css_selector(
                 "section > div.qF0y9 > div > section > div > div.qF0y9.Igw0E.IwRSH.eGOV_._4EzTm.NUiEW > div div.qF0y9 > button").click()
         except Exception as e:
+            if not self.checkProfileValid():
+                raise InvalidProfileException(f"Invalid profile")
             raise NoUserStoryException("No existing user story", e)
 
     def stillInStory(self) -> bool:
@@ -77,6 +80,13 @@ class StoryBot(BaseBot):
     def takeScreenshot(self, css: str, path):
         element = self.find_element_by_css_selector(css)
         element.screenshot(path)
+
+    def checkProfileValid(self):
+        try:
+            value = self.find_element_by_css_selector("h2._7UhW9").get_attribute("innerHTML")
+            return value.strip() != "Sorry, this page isn't available."
+        except Exception as e:
+            return True
 
     def extractStories(self, logger, profile_name, zone="Asia/Singapore") -> StoriesModel:
         try:

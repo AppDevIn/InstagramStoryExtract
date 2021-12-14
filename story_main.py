@@ -1,5 +1,6 @@
 import os
 import pathlib
+import pdb
 import time
 from datetime import datetime
 
@@ -9,7 +10,7 @@ from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import MissingArgumentException, LoginException, \
-    NoUserStoryException, StoryExtractionException
+    NoUserStoryException, StoryExtractionException, InvalidProfileException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
@@ -100,6 +101,9 @@ def main(bot: StoryBot):
             logger.info(e.message)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
             textBuilder.addText(f"{profileName}: No story 😳")
+        except InvalidProfileException as e:
+            logger.error(e.message)
+            textBuilder.addText(f"{profileName}: {e.message} ⚠️")
 
 
 def run(attempt=0):
