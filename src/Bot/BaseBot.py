@@ -71,7 +71,7 @@ class BaseBot(webdriver.Chrome):
             raise InstagramException(f"Unable to access {profile_name}'s profile", str(e))
 
     def closeDriver(self):
-        self.close()
+        self.quit()
 
     def login(self, username, password, logger, wait_time=5):
         try:
