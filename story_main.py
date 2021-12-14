@@ -92,21 +92,20 @@ def main(bot: StoryBot):
             downloadFiles(stories, profileName, data_path=data_path, logger=logger)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
             logger.info(f"Saving screenshot in {screenshot_path}")
-            textBuilder.addText(f"{profileName}: {stories.getSize()} stories")
+            textBuilder.addText(f"{profileName}: {stories.getSize()} stories ✅")
         except StoryExtractionException as e:
             logger.error(e.message)
-            send_telemessage(f"Sir, we experience unknown error {e.message}")
+            textBuilder.addText(f"{profileName}: Error has occurred ⛔️")
         except NoUserStoryException as e:
             logger.info(e.message)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
-            textBuilder.addText(f"{profileName}: No story")
+            textBuilder.addText(f"{profileName}: No story 😳")
 
 
 def run(attempt=0):
     instagram = StoryBot(isHeadless(), path=chrome_path, mode=mode)
     try:
         main(instagram)
-        send_telemessage(textBuilder.build())
         instagram.closeDriver()
     except LoginException as e:
         instagram.closeDriver()
@@ -152,8 +151,8 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        textBuilder.addText(f"From {user} account")
+        textBuilder.addText(f"*From {user} account* ⛄️")
         if profileList is not None:
             run()
-
+    send_telemessage(textBuilder.build())
     send_telemessage("Sir, we have scrapped all the requested data. Have great day ahead sir 😊")
