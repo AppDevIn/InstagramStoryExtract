@@ -155,4 +155,3 @@ if __name__ == "__main__":
         if profileList is not None:
             run()
     send_telemessage(textBuilder.build())
-    send_telemessage("Sir, we have scrapped all the requested data. Have great day ahead sir 😊")
