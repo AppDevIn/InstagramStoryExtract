@@ -1,5 +1,6 @@
 import os
 import pathlib
+import time
 from datetime import datetime
 
 import yaml
@@ -73,6 +74,7 @@ def downloadFiles(stories: StoriesModel, profile_name, data_path, logger):
 
 def snapScreenshotOfProfile(bot, profile_name, path) -> str:
     bot.landProfilePage(profile_name)
+    time.sleep(2)
     screenshot_path = f"{path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
     bot.takeScreenshot(".zw3Ow", screenshot_path)
     return screenshot_path
