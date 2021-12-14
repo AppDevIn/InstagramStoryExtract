@@ -1,5 +1,7 @@
 import os
 import pathlib
+import pdb
+import time
 from datetime import datetime
 
 import yaml
@@ -8,17 +10,20 @@ from dotenv import load_dotenv
 
 from src.DateUtil import DateUtil
 from src.Exception.CustomException import MissingArgumentException, LoginException, \
-    NoUserStoryException, StoryExtractionException
+    NoUserStoryException, StoryExtractionException, InvalidProfileException
 from src.FileUtil import FileUtil, writeVideo, writeImage, setUpLogging
 import sys
 
 from src.Bot.StoryBot import StoryBot
+from src.TextBuilder import TextBuilder
 from src.model.StoriesModel import StoriesModel
 
 load_dotenv()
 env = os.getenv('env')
 
 list_of_arguments = ["--gui", "--headless", "-r", "--attempt", "-t"]
+
+textBuilder = TextBuilder()
 
 
 def isHeadless():
@@ -46,11 +51,6 @@ def send_telemessage(message):
         telebot.send_message(chatId, message)
 
 
-def send_photo(photo):
-    if hasTele():
-        telebot.send_photo(chatId, photo)
-
-
 def getAttempt(args=sys.argv) -> str:
     index = args.index("--attempt") + 1
     if index > (len(args) - 1):
@@ -74,7 +74,7 @@ def downloadFiles(stories: StoriesModel, profile_name, data_path, logger):
 
 
 def snapScreenshotOfProfile(bot, profile_name, path) -> str:
-    bot.landProfilePage(profile_name)
+    time.sleep(2)
     screenshot_path = f"{path}/{datetime.now().strftime(DateUtil.DATE_FORMAT)}/screenshot_{profile_name}.png"
     bot.takeScreenshot(".zw3Ow", screenshot_path)
     return screenshot_path
@@ -90,18 +90,20 @@ def main(bot: StoryBot):
             logger.info(f"The number of image/video needed to be downloaded are {stories.getSize()}")
             logger.info(f"Attempting to download them")
             downloadFiles(stories, profileName, data_path=data_path, logger=logger)
+            bot.landProfilePage(profileName)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
             logger.info(f"Saving screenshot in {screenshot_path}")
-            send_photo(screenshot_path)
-            send_telemessage(f"{profileName} has {stories.getSize()} image/video and is downloaded")
+            textBuilder.addText(f"{profileName}: {stories.getSize()} stories ✅")
         except StoryExtractionException as e:
             logger.error(e.message)
-            send_telemessage(f"Sir, we experience unknown error {e.message}")
+            textBuilder.addText(f"{profileName}: Error has occurred ⛔️")
         except NoUserStoryException as e:
             logger.info(e.message)
             screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
-            send_photo(screenshot_path)
-            send_telemessage(f"Sir, {profileName} has no story today")
+            textBuilder.addText(f"{profileName}: No story 😳")
+        except InvalidProfileException as e:
+            logger.error(e.message)
+            textBuilder.addText(f"{profileName}: {e.message} ⚠️")
 
 
 def run(attempt=0):
@@ -139,8 +141,7 @@ if __name__ == "__main__":
     TOKEN = c["telegram-api-key"]
     chatId = c["chat-id"]
     telebot = TeleBot(TOKEN)
-    send_telemessage(f"Greetings sir, it's currently {datetime.now().strftime(DateUtil.TIME_FORMAT_NO_UNDERSCORE)},"
-                     f" starting scrap protocol")
+
     if hasAttempt():
         retry_attempt = int(getAttempt())
     else:
@@ -154,8 +155,7 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        send_telemessage(f"Sir, following profiles {', '.join(profileList)} with access from {user} account")
+        textBuilder.addText(f"*From {user} account* ⛄️")
         if profileList is not None:
             run()
-
-    send_telemessage("Sir, we have scrapped all the requested data. Have great day ahead sir 😊")
+    send_telemessage(textBuilder.build())
