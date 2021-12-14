@@ -83,7 +83,7 @@ class StoryBot(BaseBot):
 
     def checkProfileValid(self):
         try:
-            value = self.find_element_by_css_selector("h2._7UhW9").get_attribute("innerHTML")
+            value = self.find_element_by_css_selector("h2").get_attribute("innerHTML")
             return value.strip() != "Sorry, this page isn't available."
         except Exception as e:
             return True
