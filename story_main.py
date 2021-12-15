@@ -48,7 +48,7 @@ def hasTele():
 
 def send_telemessage(message):
     if hasTele():
-        telebot.send_message(chatId, message)
+        telebot.send_message(chatId, message, parse_mode="markdown")
 
 
 def getAttempt(args=sys.argv) -> str:
@@ -99,7 +99,11 @@ def main(bot: StoryBot):
             textBuilder.addText(f"{profileName}: Error has occurred ⛔️")
         except NoUserStoryException as e:
             logger.info(e.message)
-            screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
+            try:
+                screenshot_path = snapScreenshotOfProfile(bot, profileName, log_path)
+            except StoryExtractionException as e:
+                logger.error(e.message)
+                textBuilder.addText(f"{profileName}: Error has occurred ⛔️")
             textBuilder.addText(f"{profileName}: No story 😳")
         except InvalidProfileException as e:
             logger.error(e.message)
