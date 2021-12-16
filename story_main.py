@@ -142,8 +142,8 @@ if __name__ == "__main__":
     log_path = config["directory"] + data_path["logs"]
     data_path = config["directory"] + data_path["data"]
     zone = config["timezone"]
-    TOKEN = c["telegram-api-key"]
-    chatId = c["chat-id"]
+    TOKEN = config["telegram-api-key"]
+    chatId = config["chat-id"]
     telebot = TeleBot(TOKEN)
 
     if hasAttempt():
