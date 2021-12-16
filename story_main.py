@@ -159,7 +159,7 @@ if __name__ == "__main__":
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileList = config[f"account-{user}"]["profile"]
-        textBuilder.addText(f"*From {user} account* ⛄️")
+        textBuilder.addText(f"<b>From {user} account</b> ⛄️")
         if profileList is not None:
             run()
     send_telemessage(textBuilder.build())
