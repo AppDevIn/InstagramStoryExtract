@@ -48,7 +48,7 @@ def hasTele():
 
 def send_telemessage(message):
     if hasTele():
-        telebot.send_message(chatId, message, parse_mode="markdown")
+        telebot.send_message(chatId, message, parse_mode="html")
 
 
 def getAttempt(args=sys.argv) -> str:
