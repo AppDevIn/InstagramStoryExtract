@@ -33,4 +33,5 @@ tzlocal==4.1
 urllib3==1.26.5
 uuid0==0.2.7
 webdriver-manager==3.4.2
+-e git+https://github.com/AppDevIn/Yaml-Python.git@b0f3b4eaedcdd82ec32f474305bd7a49ffd999d5#egg=Yaml_Python
 zipp==3.6.0
