@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 import requests
 import yaml
+from main import Yaml
 
 from src.Bot.HighlightBot import HighlightBot
 from src.Bot.StoryBot import StoryBot
@@ -18,12 +19,19 @@ from src.model.UserHighlightModel import UserHighlightModel
 load_dotenv()
 env = os.getenv('env')
 
+y = Yaml("/Users/jeyavishnu/personal/instagram/config.yaml")
+
+
+@y.value(f"instagram-{env}.accounts")
+def users(): pass
+
+
 
 with open('config.yaml') as file:
     try:
         config = yaml.safe_load(file)
         config = config[f"instagram-{env}"]
-        user = config["accounts"][0]
+        user = users[0]
         username = config[f"account-{user}"]["username"]
         password = config[f"account-{user}"]["password"]
         profileName = config[f"account-{user}"]["profile"][0]
@@ -187,7 +195,7 @@ def main(bot: HighlightBot):
         bot.__class__ = StoryBot
         idRun(bot, highlight_name)
 
-    bot.closeDriver()
+    # bot.closeDriver()
 
 
 if __name__ == "__main__":
@@ -200,8 +208,8 @@ if __name__ == "__main__":
     try:
         main(highlightBot)
     except InstagramException as e:
-        highlightBot.closeDriver()
+        # highlightBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        highlightBot.closeDriver()
+        # highlightBot.closeDriver()
         logger.error(f"Unexpected error: {e}")
