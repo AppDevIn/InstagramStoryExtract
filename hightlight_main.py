@@ -26,7 +26,6 @@ y = Yaml("/Users/jeyavishnu/personal/instagram/config.yaml")
 def users(): pass
 
 
-
 with open('config.yaml') as file:
     try:
         config = yaml.safe_load(file)

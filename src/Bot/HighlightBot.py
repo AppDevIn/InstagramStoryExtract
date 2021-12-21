@@ -18,7 +18,7 @@ class HighlightBot(BaseBot):
         try:
             WebDriverWait(self, timeout).until(
                 EC.presence_of_element_located(
-                    (By.XPATH, "/html/body/div[1]/section/main/div/div[1]/div/div/div/ul/li[3]"))
+                    (By.CSS_SELECTOR, "._4bSq7 > div > div > div > ul > li:nth-child(3)"))
             )
             return True
         except Exception as e:
@@ -38,23 +38,19 @@ class HighlightBot(BaseBot):
             return False
 
     def getTimeOfHighlight(self) -> datetime:
-        time = self.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/div[5]/section/div/header/div[2]/div[1]/div/div/div/time"
-        )
+        time = self.find_element_by_css_selector("time")
         time_str = time.get_attribute("datetime")[:-5]
         return datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
 
     def getImageLink(self) -> str:
-        image = self.find_element_by_xpath(
-            "/html/body/div[1]/section/div[1]/div/div[5]/section/div/div[1]/div/div/img")
+        image = self.find_element_by_css_selector("img")
         value = image.get_attribute("srcset")
         value = value.split(',')
         return value[0]
 
     def getVideoLink(self) -> str:
         try:
-            video = self.find_element_by_xpath(
-                "/html/body/div[1]/section/div[1]/div/div[5]/section/div/div[1]/div/div/video/source")
+            video = self.find_element_by_css_selector("video > source")
             video_value = video.get_attribute("src")
             return video_value
         except Exception as e:
@@ -62,8 +58,7 @@ class HighlightBot(BaseBot):
 
     def isVideo(self) -> bool:
         try:
-            self.find_element_by_xpath(
-                "/html/body/div[1]/section/div[1]/div/div[5]/section/div/div[1]/div/div/video/source")
+            self.find_element_by_css_selector("video > source")
             return True
         except Exception as e:
             return False
