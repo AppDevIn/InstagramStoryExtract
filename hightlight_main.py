@@ -1,4 +1,5 @@
 import os
+import pdb
 import sys
 from datetime import datetime
 import requests
@@ -81,13 +82,16 @@ def downloadFiles(stories, highlight_name):
     for story in stories.getAll():
         file = FileUtil(f"{data_path}/{profileName}/{highlight_name}/")
         filename = story.dateTime.strftime(DateUtil.DATETIME_FORMAT_WITH_UNDERSCORE)
-        if story.video:
-            writeVideo(story.media, filename, file.createFolder().getDir())
-        else:
-            writeImage(story.media, filename, file.createFolder().getDir())
-        if count % 10 == 0:
-            logger.info(f"{count}/{stories.getSize()} has been downloaded")
-        count += 1
+        try:
+            if story.video:
+                writeVideo(story.media, filename, file.createFolder().getDir())
+            else:
+                writeImage(story.media, filename, file.createFolder().getDir())
+            if count % 10 == 0:
+                logger.info(f"{count}/{stories.getSize()} has been downloaded")
+            count += 1
+        except Exception as e:
+            logger.error(f"Failed to download image from highlight: {highlight_name} ")
 
     logger.info(f"{count}/{stories.getSize()} have been downloaded")
 
@@ -194,7 +198,7 @@ def main(bot: HighlightBot):
         bot.__class__ = StoryBot
         idRun(bot, highlight_name)
 
-    # bot.closeDriver()
+    bot.closeDriver()
 
 
 if __name__ == "__main__":
@@ -207,8 +211,8 @@ if __name__ == "__main__":
     try:
         main(highlightBot)
     except InstagramException as e:
-        # highlightBot.closeDriver()
+        highlightBot.closeDriver()
         logger.error(e.message)
     except Exception as e:
-        # highlightBot.closeDriver()
+        highlightBot.closeDriver()
         logger.error(f"Unexpected error: {e}")

@@ -38,7 +38,7 @@ class HighlightBot(BaseBot):
             return False
 
     def getTimeOfHighlight(self) -> datetime:
-        time = self.find_element_by_css_selector("time")
+        time = self.find_element_by_css_selector("time.BPyeS")
         time_str = time.get_attribute("datetime")[:-5]
         return datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
 
