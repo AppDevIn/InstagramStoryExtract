@@ -20,7 +20,7 @@ from src.model.UserHighlightModel import UserHighlightModel
 load_dotenv()
 env = os.getenv('env')
 
-y = Yaml("/Users/jeyavishnu/personal/instagram/config.yaml")
+y = Yaml(f"{os.path.dirname(os.path.realpath(__file__))}/config.yaml")
 
 
 @y.value(f"instagram-{env}.accounts")
@@ -41,19 +41,6 @@ with open('config.yaml') as file:
         zone = config["timezone"]
     except yaml.YAMLError as exc:
         print(exc)
-
-
-def downloadImage(link, name, path):
-    url = link.split()[0]
-    r = requests.get(url)
-
-    open(f'{path}{name}.jpg', 'wb').write(r.content)
-
-
-def downloadVideo(url, name, path):
-    r = requests.get(url)
-
-    open(f'{path}{name}.mp4', 'wb').write(r.content)
 
 
 def isHeadless(args):
