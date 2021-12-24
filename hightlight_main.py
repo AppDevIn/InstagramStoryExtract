@@ -1,8 +1,10 @@
 import os
+import pdb
 import sys
 from datetime import datetime
 import requests
 import yaml
+from main import Yaml
 
 from src.Bot.HighlightBot import HighlightBot
 from src.Bot.StoryBot import StoryBot
@@ -18,34 +20,30 @@ from src.model.UserHighlightModel import UserHighlightModel
 load_dotenv()
 env = os.getenv('env')
 
-
-with open('config.yaml') as file:
-    try:
-        config = yaml.safe_load(file)
-        config = config[f"instagram-{env}"]
-        user = config["accounts"][0]
-        username = config[f"account-{user}"]["username"]
-        password = config[f"account-{user}"]["password"]
-        profileName = config[f"account-{user}"]["profile"][0]
-        data_path = config["highlight"]
-        log_path = config["directory"] + data_path["logs"]
-        data_path = config["directory"] + data_path["data"]
-        zone = config["timezone"]
-    except yaml.YAMLError as exc:
-        print(exc)
+y = Yaml(f"{os.path.dirname(os.path.realpath(__file__))}/config.yaml")
 
 
-def downloadImage(link, name, path):
-    url = link.split()[0]
-    r = requests.get(url)
+@y.value(f"instagram-{env}.accounts")
+def users(): pass
+@y.value(f"instagram-{env}.timezone")
+def zone(): pass
+@y.value(f"instagram-{env}.directory")
+def directory(): pass
+@y.value(f"instagram-{env}.highlight.logs")
+def log(): pass
+@y.value(f"instagram-{env}.highlight.data")
+def data(): pass
+@y.value(f"instagram-{env}.account-{users[0]}.username")
+def username(): pass
+@y.value(f"instagram-{env}.account-{users[0]}.password")
+def password(): pass
+@y.value(f"instagram-{env}.account-{users[0]}.profile")
+def profiles(): pass
 
-    open(f'{path}{name}.jpg', 'wb').write(r.content)
 
-
-def downloadVideo(url, name, path):
-    r = requests.get(url)
-
-    open(f'{path}{name}.mp4', 'wb').write(r.content)
+profileName = profiles[0]
+data_path = directory + data
+log_path = directory + log
 
 
 def isHeadless(args):
@@ -74,13 +72,16 @@ def downloadFiles(stories, highlight_name):
     for story in stories.getAll():
         file = FileUtil(f"{data_path}/{profileName}/{highlight_name}/")
         filename = story.dateTime.strftime(DateUtil.DATETIME_FORMAT_WITH_UNDERSCORE)
-        if story.video:
-            writeVideo(story.media, filename, file.createFolder().getDir())
-        else:
-            writeImage(story.media, filename, file.createFolder().getDir())
-        if count % 10 == 0:
-            logger.info(f"{count}/{stories.getSize()} has been downloaded")
-        count += 1
+        try:
+            if story.video:
+                writeVideo(story.media, filename, file.createFolder().getDir())
+            else:
+                writeImage(story.media, filename, file.createFolder().getDir())
+            if count % 10 == 0:
+                logger.info(f"{count}/{stories.getSize()} has been downloaded")
+            count += 1
+        except Exception as e:
+            logger.error(f"Failed to download image from highlight: {highlight_name} ")
 
     logger.info(f"{count}/{stories.getSize()} have been downloaded")
 
