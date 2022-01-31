@@ -77,17 +77,13 @@ class BaseBot(webdriver.Remote):
         self.dead = True
         self.quit()
 
-    def login(self, username, password, logger, wait_time=5):
+    def login(self, username, password, wait_time=5):
         try:
-            logger.info("Opening the landing page")
             self.landOnPage()
             self.waitTillLoginPageLoaded(wait_time)
-            logger.info("The page has loaded")
             self.loginIntoInstagram(username, password)
-            logger.info("Attempting with the credentials given in config.yaml")
-            logger.info(f"Login with username {username}")
             self.waitTillInstagramLogoDetected(wait_time)
-            logger.info("Login was successful")
+
         except InstagramException as e:
             raise LoginException(e.message, e.default_message)
         except Exception as e:
