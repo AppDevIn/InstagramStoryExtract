@@ -83,6 +83,8 @@ def snapScreenshotOfProfile(bot, profile_name, path) -> str:
 def main(bot: StoryBot):
 
     bot.login(username, password, logger)
+    for cookie in bot.get_cookies():
+        print(cookie)
 
     for profileName in profileList:
         try:
