@@ -10,8 +10,8 @@ from src.model.UserModel import User
 
 
 class DetailsBot(BaseBot):
-    def __init__(self, headless):
-        super(DetailsBot, self).__init__(headless)
+    def __init__(self, path="http://localhost:4444/wd/hub"):
+        super(DetailsBot, self).__init__(path)
         self.user = User()
 
     def getBio(self) -> str:

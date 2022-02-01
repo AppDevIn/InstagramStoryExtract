@@ -11,8 +11,8 @@ from src.Exception.CustomException import InstagramException
 
 
 class HighlightBot(BaseBot):
-    def __init__(self, headless):
-        super(HighlightBot, self).__init__(headless)
+    def __init__(self, path="http://localhost:4444/wd/hub"):
+        super(HighlightBot, self).__init__(path)
 
     def hasHighlight(self, timeout) -> bool:
         try:
