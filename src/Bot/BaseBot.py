@@ -19,7 +19,7 @@ from src.model.DriverModeEnum import DriverMode
 class BaseBot(webdriver.Remote):
     def __init__(self, path="http://localhost:4444/wd/hub"):
         self.dead = False
-        super(BaseBot, self).__init__(command_executor=path, options=chrome_options)
+        super(BaseBot, self).__init__(command_executor=path)
         self.implicitly_wait(5)
 
     def landOnPage(self):
