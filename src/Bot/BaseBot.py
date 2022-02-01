@@ -1,25 +1,21 @@
 import pdb
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-
-from webdriver_manager.utils import ChromeType
 
 import src.model.constants as const
-
-
 from src.Exception.CustomException import InstagramException, LoginException
-from src.model.DriverModeEnum import DriverMode
 
 
 class BaseBot(webdriver.Remote):
     def __init__(self, path="http://localhost:4444/wd/hub"):
         self.dead = False
-        super(BaseBot, self).__init__(command_executor=path)
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        super(BaseBot, self).__init__(command_executor=path, options=chrome_options)
         self.implicitly_wait(5)
 
     def landOnPage(self):
