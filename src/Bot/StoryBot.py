@@ -15,8 +15,8 @@ from src.model.StoriesModel import StoriesModel
 
 class StoryBot(BaseBot):
 
-    def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
-        super(StoryBot, self).__init__(headless, path=path, mode=mode)
+    def __init__(self, path="http://localhost:4444/wd/hub"):
+        super(StoryBot, self).__init__(path=path)
 
     def __int__(self, base: BaseBot):
         super(base)

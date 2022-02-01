@@ -15,8 +15,8 @@ import pdb
 
 
 class PostBot(BaseBot):
-    def __init__(self, headless, path=None, mode=DriverMode.CHROMEDRIVERMANAGER):
-        super(PostBot, self).__init__(headless, path=path, mode=mode)
+    def __init__(self, path="http://localhost:4444/wd/hub"):
+        super(PostBot, self).__init__(headless, path=path)
 
     def landOnPostById(self, id):
         self.get(f"{const.BASE_URL}/p/{id}")
